@@ -1,70 +1,70 @@
 {
-  "engines": {
-    "node": ">=8.10"
-  },
-  "name": "durinn",
-  "version": "0.6.0",
-  "description": "A Node.js object-oriented programming framework",
-  "main": "durinn.js",
-  "types": "durinn.d.ts",
-  "scripts": {
-    "test": "mocha -r ts-node/register '**/*.spec.ts' --exit",
-    "start": "npm run build:live",
-    "build": "tsc -p .",
-    "build:live": "nodemon --watch '**/*.ts' --exec 'ts-node' durinn.ts",
-    "prettier": "npx prettier --write --tab-width 4 --use-tabs **/*.ts",
-    "prepare": "npx tsc -p . && npx tsc --target ES2016 --declaration"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/samuelfaj/Durinn-core.git"
-  },
-  "bin":{
-    "durinn": "bin/cli.js"
-  },
-  "keywords": [
-    "OOP",
-    "framework",
-    "Node.js"
-  ],
-  "author": "Samuel Fajreldines",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/samuelfaj/Durinn-core/issues"
-  },
-  "homepage": "https://github.com/samuelfaj/Durinn-core#readme",
-  "dependencies": {
-    "@types/mysql": "^2.15.5",
-    "mysql": "^2.16.0",
-    "npx": "^10.2.0",
-    "prettier": "^1.14.2"
-  },
-  "devDependencies": {
-    "@types/chai": "^4.1.5",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "^10.10.1",
-    "chai": "^4.1.2",
-    "eslint": "^5.6.0",
-    "husky": "^1.0.0-rc.14",
-    "lint-staged": "^7.2.2",
-    "mocha": "^5.2.0",
-    "nodemon": "^1.18.4",
-    "ts-node": "^7.0.1",
-    "typescript": "^3.0.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged && npm test"
-    }
-  },
-  "lint-staged": {
-    "*.{js,json,css,md,ts}": [
-      "./node_modules/.bin/prettier --write --tab-width 4 --use-tabs",
-      "git add"
-    ],
-    "*.js": [
-      "eslint --fix",
-      "git add"
-    ]
-  }
+	"engines": {
+		"node": ">=8.10"
+	},
+	"name": "durinn",
+	"version": "0.6.0",
+	"description": "A Node.js object-oriented programming framework",
+	"main": "durinn.js",
+	"types": "durinn.d.ts",
+	"scripts": {
+		"test": "mocha -r ts-node/register '**/*.spec.ts' --exit",
+		"start": "npm run build:live",
+		"build": "tsc -p .",
+		"build:live": "nodemon --watch '**/*.ts' --exec 'ts-node' durinn.ts",
+		"prettier": "npx prettier --write --tab-width 4 --use-tabs **/*.ts",
+		"prepare": "npx tsc -p . && npx tsc --target ES2016 --declaration"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/samuelfaj/Durinn-core.git"
+	},
+	"bin": {
+		"durinn": "bin/cli.js"
+	},
+	"keywords": [
+		"OOP",
+		"framework",
+		"Node.js"
+	],
+	"author": "Samuel Fajreldines",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/samuelfaj/Durinn-core/issues"
+	},
+	"homepage": "https://github.com/samuelfaj/Durinn-core#readme",
+	"dependencies": {
+		"@types/mysql": "^2.15.5",
+		"mysql": "^2.16.0",
+		"npx": "^10.2.0",
+		"prettier": "^1.14.2"
+	},
+	"devDependencies": {
+		"@types/chai": "^4.1.5",
+		"@types/mocha": "^5.2.5",
+		"@types/node": "^10.10.1",
+		"chai": "^4.1.2",
+		"eslint": "^5.6.0",
+		"husky": "^1.0.0-rc.14",
+		"lint-staged": "^7.2.2",
+		"mocha": "^5.2.0",
+		"nodemon": "^1.18.4",
+		"ts-node": "^7.0.1",
+		"typescript": "^3.0.3"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged && npm test"
+		}
+	},
+	"lint-staged": {
+		"*.{js,json,css,md,ts}": [
+			"./node_modules/.bin/prettier --write --tab-width 4 --use-tabs",
+			"git add"
+		],
+		"*.js": [
+			"eslint --fix",
+			"git add"
+		]
+	}
 }
