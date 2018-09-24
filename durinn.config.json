@@ -1,0 +1,13 @@
+{
+  "database": {
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "",
+    "dateStrings": true,
+    "timeout": 60000,
+    "connectTimeout": 60000,
+    "acquireTimeout": 60000,
+    "connectionLimit": 100
+  }
+}
