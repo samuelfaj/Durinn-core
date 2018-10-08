@@ -7,7 +7,7 @@ export default class RelationalObject {
 	protected table: string = "";
 	protected filter: PrimaryKey = {};
 
-	private cache: object | undefined = undefined;
+	protected cache: object | undefined = undefined;
 
 	constructor(table: string, filter: PrimaryKey) {
 		this.table = table;
