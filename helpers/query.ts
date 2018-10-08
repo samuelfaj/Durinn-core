@@ -499,7 +499,7 @@ export default class {
 		for (let key in orders) {
 			let order = orders[key];
 
-			result.push(`${self.escape(order.field)} ${order.order}`);
+			result.push(`${order.field} ${order.order}`);
 		}
 
 		return ` ORDER BY ${result.join(",")} `;
