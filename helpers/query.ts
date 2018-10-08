@@ -27,6 +27,27 @@
 import Durinn from "../durinn";
 import { FieldInfo, MysqlError, Pool } from "mysql";
 
+interface Variables {
+	sql: string;
+	table: string;
+	joins: Joins;
+	conditions: {
+		limit: [] | [number] | [number, number];
+		wheres: Wheres;
+		orders: Orders;
+		groups: Groups;
+	};
+}
+
+interface Response {
+	rows: any[];
+	result: boolean;
+	fields: FieldInfo[] | null;
+	insertId: number | null;
+	changedRows: number;
+	affectedRows: number;
+}
+
 type Comparison = ">" | "<" | ">=" | "<=" | "==" | "!=" | "===" | "!==";
 
 type Callback = (
@@ -34,7 +55,6 @@ type Callback = (
 	response: Response,
 	error?: MysqlError | null
 ) => void;
-type PromiseCallback = [boolean, Response, MysqlError | null];
 
 type Join = { table: string; on: { from: string; to: string }[]; type: string };
 type Joins = Join[];
@@ -47,27 +67,6 @@ type Wheres = {
 type Order = "ASC" | "DESC" | "asc" | "desc";
 type Orders = { field: string; order: Order }[];
 type Groups = string[];
-
-interface Response {
-	rows: [];
-	result: boolean;
-	fields: FieldInfo[] | null;
-	insertId: number | null;
-	changedRows: number;
-	affectedRows: number;
-}
-
-interface Variables {
-	sql: string;
-	table: string;
-	joins: Joins;
-	conditions: {
-		limit: [] | [number] | [number, number];
-		wheres: Wheres;
-		orders: Orders;
-		groups: Groups;
-	};
-}
 
 export default class {
 	pool: Pool;
@@ -201,42 +200,48 @@ export default class {
 	public async exec(
 		sql?: string,
 		callback?: Callback
-	): Promise<PromiseCallback> {
+	): Promise<[boolean, Response, MysqlError | null]> {
 		const self = this;
 
 		self.variables.sql = sql || self.variables.sql;
 
-		return new Promise<PromiseCallback>(resolve => {
-			self.pool.query(self.variables.sql, function(
-				error,
-				results,
-				fields
-			) {
-				self.resetResult();
+		return new Promise<[boolean, Response, (MysqlError | null)]>(
+			resolve => {
+				self.pool.query(self.variables.sql, function(
+					error,
+					results,
+					fields
+				) {
+					self.resetResult();
 
-				if (!error) {
-					self.response = {
-						rows: results,
-						fields: fields || null,
-						result: true,
-						insertId: results.insertId || null,
-						changedRows: results.changedRows || 0,
-						affectedRows: results.affectedRows || 0
-					};
-				}
+					if (!error) {
+						self.response = {
+							rows: results,
+							fields: fields || null,
+							result: true,
+							insertId: results.insertId || null,
+							changedRows: results.changedRows || 0,
+							affectedRows: results.affectedRows || 0
+						};
+					}
 
-				if (error) throw error;
-				if (callback)
-					callback(self.response.result, self.response, error);
-				return resolve([self.response.result, self.response, error]);
-			});
-		});
+					if (error) throw error;
+					if (callback)
+						callback(self.response.result, self.response, error);
+					return resolve([
+						self.response.result,
+						self.response,
+						error
+					]);
+				});
+			}
+		);
 	}
 
 	public async select(
 		callback?: Callback,
 		params: { fields?: string[]; ResultCheckBy?: Comparison } = {}
-	) {
+	): Promise<[boolean, Response, MysqlError | null]> {
 		const self = this;
 
 		let sql = ` 
