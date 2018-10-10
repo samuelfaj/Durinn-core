@@ -49,6 +49,7 @@ export default class {
 	pool: Pool;
 	response: Response;
 	variables: Variables;
+	connection: string;
 	constructor(table?: string);
 	reset(): void;
 	table(name: string): this;

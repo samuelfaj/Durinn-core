@@ -72,6 +72,7 @@ export default class {
 	pool: Pool;
 	response: Response;
 	variables: Variables;
+	connection = "destroy";
 
 	constructor(table?: string) {
 		this.pool = Durinn.database.connection;
@@ -207,32 +208,49 @@ export default class {
 
 		return new Promise<[boolean, Response, (MysqlError | null)]>(
 			resolve => {
-				self.pool.query(self.variables.sql, function(
-					error,
-					results,
-					fields
-				) {
-					self.resetResult();
+				self.pool.getConnection(function(err, connection) {
+					if (err) throw err;
 
-					if (!error) {
-						self.response = {
-							rows: results,
-							fields: fields || null,
-							result: true,
-							insertId: results.insertId || null,
-							changedRows: results.changedRows || 0,
-							affectedRows: results.affectedRows || 0
-						};
-					}
+					connection.query(self.variables.sql, function(
+						error,
+						results,
+						fields
+					) {
+						if (self.connection === "destroy") {
+							connection.destroy();
+						} else {
+							connection.release();
+						}
 
-					if (error) throw error;
-					if (callback)
-						callback(self.response.result, self.response, error);
-					return resolve([
-						self.response.result,
-						self.response,
-						error
-					]);
+						self.resetResult();
+
+						if (error) {
+							throw error;
+						} else {
+							self.response = {
+								rows: results,
+								fields: fields || null,
+								result: true,
+								insertId: results.insertId || null,
+								changedRows: results.changedRows || 0,
+								affectedRows: results.affectedRows || 0
+							};
+						}
+
+						if (callback) {
+							callback(
+								self.response.result,
+								self.response,
+								error
+							);
+						}
+
+						return resolve([
+							self.response.result,
+							self.response,
+							error
+						]);
+					});
 				});
 			}
 		);
@@ -451,9 +469,7 @@ export default class {
 			}
 
 			result.push(
-				`${join.type} JOIN ${self.escape(
-					join.table
-				)} ON ${relations.join(" AND ")}`
+				`${join.type} JOIN ${join.table} ON ${relations.join(" AND ")}`
 			);
 		}
 

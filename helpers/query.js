@@ -37,6 +37,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const durinn_1 = __importDefault(require("../durinn"));
 class default_1 {
 	constructor(table) {
+		this.connection = "destroy";
 		this.pool = durinn_1.default.database.connection;
 		this.variables = {
 			sql: "",
@@ -131,23 +132,39 @@ class default_1 {
 			const self = this;
 			self.variables.sql = sql || self.variables.sql;
 			return new Promise(resolve => {
-				self.pool.query(self.variables.sql, function (error, results, fields) {
-					self.resetResult();
-					if (!error) {
-						self.response = {
-							rows: results,
-							fields: fields || null,
-							result: true,
-							insertId: results.insertId || null,
-							changedRows: results.changedRows || 0,
-							affectedRows: results.affectedRows || 0
-						};
-					}
-					if (error)
-						throw error;
-					if (callback)
-						callback(self.response.result, self.response, error);
-					return resolve([self.response.result, self.response, error]);
+				self.pool.getConnection(function (err, connection) {
+					if (err)
+						throw err;
+					connection.query(self.variables.sql, function (error, results, fields) {
+						if (self.connection === "destroy") {
+							connection.destroy();
+						}
+						else {
+							connection.release();
+						}
+						self.resetResult();
+						if (error) {
+							throw error;
+						}
+						else {
+							self.response = {
+								rows: results,
+								fields: fields || null,
+								result: true,
+								insertId: results.insertId || null,
+								changedRows: results.changedRows || 0,
+								affectedRows: results.affectedRows || 0
+							};
+						}
+						if (callback) {
+							callback(self.response.result, self.response, error);
+						}
+						return resolve([
+							self.response.result,
+							self.response,
+							error
+						]);
+					});
 				});
 			});
 		});
@@ -285,7 +302,7 @@ class default_1 {
                     " = " +
                     self.escape(relation.to));
 			}
-			result.push(`${join.type} JOIN ${self.escape(join.table)} ON ${relations.join(" AND ")}`);
+			result.push(`${join.type} JOIN ${join.table} ON ${relations.join(" AND ")}`);
 		}
 		return result.join("\n");
 	}
