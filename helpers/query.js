@@ -1,15 +1,39 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-	return new (P || (P = Promise))(function (resolve, reject) {
-		function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-		function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-		function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-		step((generator = generator.apply(thisArg, _arguments || [])).next());
-	});
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-	return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __awaiter =
+	(this && this.__awaiter) ||
+	function(thisArg, _arguments, P, generator) {
+		return new (P || (P = Promise))(function(resolve, reject) {
+			function fulfilled(value) {
+				try {
+					step(generator.next(value));
+				} catch (e) {
+					reject(e);
+				}
+			}
+			function rejected(value) {
+				try {
+					step(generator["throw"](value));
+				} catch (e) {
+					reject(e);
+				}
+			}
+			function step(result) {
+				result.done
+					? resolve(result.value)
+					: new P(function(resolve) {
+						resolve(result.value);
+					  }).then(fulfilled, rejected);
+			}
+			step(
+				(generator = generator.apply(thisArg, _arguments || [])).next()
+			);
+		});
+	};
+var __importDefault =
+	(this && this.__importDefault) ||
+	function(mod) {
+		return mod && mod.__esModule ? mod : { default: mod };
+	};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Durinn Mysql Query builder and executor
@@ -68,8 +92,7 @@ class default_1 {
 		return this;
 	}
 	escape(value, escape = true) {
-		if (escape === false)
-			return value;
+		if (escape === false) return value;
 		return this.pool.escape(value);
 	}
 	where(field, operator, value, escape = true) {
@@ -103,8 +126,7 @@ class default_1 {
 	limit(records, offset) {
 		if (typeof offset === "number") {
 			this.variables.conditions.limit = [records, offset];
-		}
-		else {
+		} else {
 			this.variables.conditions.limit = [records];
 		}
 		return this;
@@ -128,25 +150,26 @@ class default_1 {
 		return this.response.affectedRows;
 	}
 	exec(sql, callback) {
-		return __awaiter(this, void 0, void 0, function* () {
+		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
 			self.variables.sql = sql || self.variables.sql;
 			return new Promise(resolve => {
-				self.pool.getConnection(function (err, connection) {
-					if (err)
-						throw err;
-					connection.query(self.variables.sql, function (error, results, fields) {
+				self.pool.getConnection(function(err, connection) {
+					if (err) throw err;
+					connection.query(self.variables.sql, function(
+						error,
+						results,
+						fields
+					) {
 						if (self.connection === "destroy") {
 							connection.destroy();
-						}
-						else {
+						} else {
 							connection.release();
 						}
 						self.resetResult();
 						if (error) {
 							throw error;
-						}
-						else {
+						} else {
 							self.response = {
 								rows: results,
 								fields: fields || null,
@@ -157,7 +180,11 @@ class default_1 {
 							};
 						}
 						if (callback) {
-							callback(self.response.result, self.response, error);
+							callback(
+								self.response.result,
+								self.response,
+								error
+							);
 						}
 						return resolve([
 							self.response.result,
@@ -170,14 +197,20 @@ class default_1 {
 		});
 	}
 	select(callback, params = {}) {
-		return __awaiter(this, void 0, void 0, function* () {
+		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
 			let sql = ` 
 		    SELECT ${(params.fields || ["*"]).join(",")} FROM ${self.variables.table} 
-	        ${self.joins}  ${self.wheres}  ${self.groups}  ${self.orders}  ${self.limits}
+	        ${self.joins}  ${self.wheres}  ${self.groups}  ${self.orders}  ${
+	self.limits
+}
 	    `;
 			let [result, response, error] = yield self.exec(sql);
-			response.result = self.compare(response.rows.length, params.ResultCheckBy || ">", 0);
+			response.result = self.compare(
+				response.rows.length,
+				params.ResultCheckBy || ">",
+				0
+			);
 			if (typeof callback === "function") {
 				callback(response.result, response, error);
 			}
@@ -185,20 +218,31 @@ class default_1 {
 		});
 	}
 	update(update, callback, params = {}, safeMode = true) {
-		return __awaiter(this, void 0, void 0, function* () {
+		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
 			if (safeMode && self.wheres.length === 0) {
-				throw new Error("Durinn - SAFE MODE - There isn't a where condition in UPDATE query");
+				throw new Error(
+					"Durinn - SAFE MODE - There isn't a where condition in UPDATE query"
+				);
 			}
 			let set = [];
 			for (let i in update) {
-				set.push(`${i} = ${self.escape(update[i].toString(), params.escapeValues)}`);
+				set.push(
+					`${i} = ${self.escape(
+						update[i].toString(),
+						params.escapeValues
+					)}`
+				);
 			}
 			let sql = `
 	        UPDATE ${self.variables.table} SET ${set.join(",")} ${self.wheres} 
 	    `;
 			let [result, response, error] = yield self.exec(sql);
-			response.result = self.compare(response.changedRows, params.ResultCheckBy || ">=", 0);
+			response.result = self.compare(
+				response.changedRows,
+				params.ResultCheckBy || ">=",
+				0
+			);
 			if (typeof callback === "function") {
 				callback(response.result, response, error);
 			}
@@ -206,7 +250,7 @@ class default_1 {
 		});
 	}
 	insert(insert, callback, params = {}) {
-		return __awaiter(this, void 0, void 0, function* () {
+		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
 			let keys = [];
 			let values = [];
@@ -227,7 +271,7 @@ class default_1 {
 		});
 	}
 	replace(insert, callback, params = {}) {
-		return __awaiter(this, void 0, void 0, function* () {
+		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
 			let keys = [];
 			let values = [];
@@ -248,16 +292,22 @@ class default_1 {
 		});
 	}
 	delete(callback, params = {}, safeMode = true) {
-		return __awaiter(this, void 0, void 0, function* () {
+		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
 			if (safeMode && self.wheres.length === 0) {
-				throw new Error("Durinn - SAFE MODE - There isn't a where condition in DELETE query");
+				throw new Error(
+					"Durinn - SAFE MODE - There isn't a where condition in DELETE query"
+				);
 			}
 			let sql = `
 	        DELETE FROM ${self.variables.table} ${self.wheres} 
 	    `;
 			let [result, response, error] = yield self.exec(sql);
-			response.result = self.compare(response.affectedRows, params.ResultCheckBy || ">", 0);
+			response.result = self.compare(
+				response.affectedRows,
+				params.ResultCheckBy || ">",
+				0
+			);
 			if (typeof callback === "function") {
 				callback(response.result, response, error);
 			}
@@ -291,18 +341,21 @@ class default_1 {
 		const self = this;
 		let result = [];
 		let joins = this.variables.joins;
-		if (joins.length === 0)
-			return "";
+		if (joins.length === 0) return "";
 		for (let key in joins) {
 			let join = joins[key];
 			let relations = [];
 			for (let i in join.on) {
 				let relation = join.on[i];
-				relations.push(self.escape(relation.from) +
-                    " = " +
-                    self.escape(relation.to));
+				relations.push(
+					self.escape(relation.from) +
+						" = " +
+						self.escape(relation.to)
+				);
 			}
-			result.push(`${join.type} JOIN ${join.table} ON ${relations.join(" AND ")}`);
+			result.push(
+				`${join.type} JOIN ${join.table} ON ${relations.join(" AND ")}`
+			);
 		}
 		return result.join("\n");
 	}
@@ -310,8 +363,7 @@ class default_1 {
 		const self = this;
 		let result = [];
 		let wheres = self.variables.conditions.wheres;
-		if (wheres.length === 0)
-			return "";
+		if (wheres.length === 0) return "";
 		for (let key in wheres) {
 			let where = wheres[key];
 			let value = where.escape ? self.escape(where.value) : where.value;
@@ -323,8 +375,7 @@ class default_1 {
 		const self = this;
 		let result = [];
 		let groups = self.variables.conditions.groups;
-		if (groups.length === 0)
-			return "";
+		if (groups.length === 0) return "";
 		for (let key in groups) {
 			result.push(self.escape(groups[key]));
 		}
@@ -334,8 +385,7 @@ class default_1 {
 		const self = this;
 		let result = [];
 		let orders = self.variables.conditions.orders;
-		if (orders.length === 0)
-			return "";
+		if (orders.length === 0) return "";
 		for (let key in orders) {
 			let order = orders[key];
 			result.push(`${order.field} ${order.order}`);
@@ -343,8 +393,7 @@ class default_1 {
 		return ` ORDER BY ${result.join(",")} `;
 	}
 	get limits() {
-		if (this.variables.conditions.limit.length == 0)
-			return "";
+		if (this.variables.conditions.limit.length == 0) return "";
 		return ` LIMIT ${this.variables.conditions.limit.join(",")} `;
 	}
 	compare(variable, operator, value) {

@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 "use strict";
-let fs = require('fs');
-const root = __dirname + '/../../../';
+let fs = require("fs");
 console.log("Initializing Durinn...");
-if (!fs.existsSync(root + 'durinn.config.json')) {
-    let Config = require('../durinn.config');
-    fs.writeFileSync(root + 'durinn.config.json', JSON.stringify(Config, null, 2));
-    console.log(" - Durinn configuration file wrote.");
+if (!fs.existsSync(process.cwd() + "durinn.config.json")) {
+	let Config = require("../durinn.config");
+	fs.writeFileSync(
+		process.cwd() + "durinn.config.json",
+		JSON.stringify(Config, null, 2)
+	);
+	console.log(" - Durinn configuration file wrote.");
 }

@@ -1,12 +1,13 @@
-const root = __dirname + '/../../';
-const fs = require('fs');
+const fs = require("fs");
 
-let Config = require('./durinn.config');
+let Config = require("./durinn.config");
 
-if (fs.existsSync(root + 'durinn.config.json')) {
-    Config = require(__dirname + '/../../durinn.config');
-}else{
-    console.error("Durinn - durin.config.json not found. Please run \"durinn init\" command.");
+if (fs.existsSync(process.cwd() + "/durinn.config.json")) {
+	Config = require(process.cwd() + "/durinn.config");
+} else {
+	console.error(
+		'Durinn - durin.config.json not found. Please run "durinn init" command.'
+	);
 }
 
 import Mysql from "./classes/mysql";
