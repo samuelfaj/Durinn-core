@@ -50,14 +50,22 @@ export default class RelationalObject {
 	}
 
 	public async update(
-		field: string,
-		value: string | number
+		field: string | { [s: string]: string | number },
+		value?: string | number
 	): Promise<boolean> {
 		const query = this.query;
 
-		await query.update({ [field]: value });
+		if (typeof field === "object") {
+			await query.update(field);
+			return query.result;
+		}
 
-		return query.result;
+		if (typeof field === "string" && typeof value !== "undefined") {
+			await query.update({ [field]: value });
+			return query.result;
+		}
+
+		return false;
 	}
 
 	public async delete(): Promise<boolean> {

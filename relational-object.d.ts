@@ -10,7 +10,14 @@ export default class RelationalObject {
 	readonly query: Query;
 	readonly data: Promise<any>;
 	get(): Promise<any>;
-	update(field: string, value: string | number): Promise<boolean>;
+	update(
+		field:
+			| string
+			| {
+					[s: string]: string | number;
+			  },
+		value?: string | number
+	): Promise<boolean>;
 	delete(): Promise<boolean>;
 }
 export {};
