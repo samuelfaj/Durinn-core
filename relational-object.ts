@@ -25,9 +25,9 @@ export default class RelationalObject {
 		return query;
 	}
 
-	public get data(): Promise<object> {
+	public get data(): Promise<any> {
 		const self = this;
-		return new Promise<object>(resolve => {
+		return new Promise<any>(resolve => {
 			if (self.cache === undefined) {
 				self.get().then(result => {
 					resolve(result);
@@ -40,7 +40,7 @@ export default class RelationalObject {
 		});
 	}
 
-	public async get(): Promise<object> {
+	public async get(): Promise<any> {
 		const self = this;
 		const query = this.query;
 

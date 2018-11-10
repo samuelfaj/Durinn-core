@@ -8,8 +8,8 @@ export default class RelationalObject {
 	protected cache: object | undefined;
 	constructor(table: string, filter: PrimaryKey);
 	readonly query: Query;
-	readonly data: Promise<object>;
-	get(): Promise<object>;
+	readonly data: Promise<any>;
+	get(): Promise<any>;
 	update(field: string, value: string | number): Promise<boolean>;
 	delete(): Promise<boolean>;
 }
