@@ -329,7 +329,7 @@ export default class {
 	}
 
 	public async insert(
-		insert: { [s: string]: string },
+		insert: { [s: string]: string | number },
 		callback?: Callback,
 		params: { escapeValues?: boolean } = {}
 	) {
@@ -340,7 +340,7 @@ export default class {
 
 		for (let i in insert) {
 			keys.push(i);
-			values.push(self.escape(insert[i], params.escapeValues));
+			values.push(self.escape(insert[i].toString(), params.escapeValues));
 		}
 
 		let sql = `
@@ -360,7 +360,7 @@ export default class {
 	}
 
 	public async replace(
-		insert: { [s: string]: string },
+		insert: { [s: string]: string | number },
 		callback?: Callback,
 		params: { escapeValues?: boolean } = {}
 	) {
@@ -371,7 +371,7 @@ export default class {
 
 		for (let i in insert) {
 			keys.push(i);
-			values.push(self.escape(insert[i], params.escapeValues));
+			values.push(self.escape(insert[i].toString(), params.escapeValues));
 		}
 
 		let sql = `

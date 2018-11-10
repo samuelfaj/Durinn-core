@@ -256,7 +256,9 @@ class default_1 {
 			let values = [];
 			for (let i in insert) {
 				keys.push(i);
-				values.push(self.escape(insert[i], params.escapeValues));
+				values.push(
+					self.escape(insert[i].toString(), params.escapeValues)
+				);
 			}
 			let sql = `
 	        INSERT INTO ${self.variables.table} (${keys.join(",")}) 
@@ -277,7 +279,9 @@ class default_1 {
 			let values = [];
 			for (let i in insert) {
 				keys.push(i);
-				values.push(self.escape(insert[i], params.escapeValues));
+				values.push(
+					self.escape(insert[i].toString(), params.escapeValues)
+				);
 			}
 			let sql = `
 	        REPLACE INTO ${self.variables.table} (${keys.join(",")}) 

@@ -67,10 +67,31 @@ class RelationalObject {
 	}
 	get() {
 		return __awaiter(this, void 0, void 0, function*() {
-			const self = this;
 			const query = this.query;
 			yield query.select();
-			return (self.cache = query.rows[0] || {});
+			return (this.cache = query.rows[0] || null);
+		});
+	}
+	insert(fields) {
+		return __awaiter(this, void 0, void 0, function*() {
+			const query = this.query;
+			const filter = this.filter;
+			for (const item in filter) {
+				fields[item] = filter[item];
+			}
+			yield query.insert(fields);
+			return query.result;
+		});
+	}
+	replace(fields) {
+		return __awaiter(this, void 0, void 0, function*() {
+			const query = this.query;
+			const filter = this.filter;
+			for (const item in filter) {
+				fields[item] = filter[item];
+			}
+			yield query.replace(fields);
+			return query.result;
 		});
 	}
 	update(field, value) {

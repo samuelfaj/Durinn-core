@@ -104,7 +104,7 @@ export default class {
 	): Promise<(boolean | MysqlError | Response | null)[]>;
 	insert(
 		insert: {
-			[s: string]: string;
+			[s: string]: string | number;
 		},
 		callback?: Callback,
 		params?: {
@@ -113,7 +113,7 @@ export default class {
 	): Promise<(boolean | MysqlError | Response | null)[]>;
 	replace(
 		insert: {
-			[s: string]: string;
+			[s: string]: string | number;
 		},
 		callback?: Callback,
 		params?: {
