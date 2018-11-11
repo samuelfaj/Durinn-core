@@ -69,7 +69,7 @@ class RelationalObject {
 		return __awaiter(this, void 0, void 0, function*() {
 			const query = this.query;
 			yield query.select();
-			return (this.cache = query.rows[0] || null);
+			return (this.cache = query.rows[0] || {});
 		});
 	}
 	insert(fields) {
