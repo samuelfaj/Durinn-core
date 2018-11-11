@@ -93,6 +93,7 @@ class default_1 {
 	}
 	escape(value, escape = true) {
 		if (escape === false) return value;
+		if (value === null) return "null";
 		return this.pool.escape(value);
 	}
 	where(field, operator, value, escape = true) {
@@ -228,10 +229,7 @@ class default_1 {
 			let set = [];
 			for (let i in update) {
 				set.push(
-					`${i} = ${self.escape(
-						update[i].toString(),
-						params.escapeValues
-					)}`
+					`${i} = ${self.escape(update[i], params.escapeValues)}`
 				);
 			}
 			let sql = `
@@ -256,9 +254,7 @@ class default_1 {
 			let values = [];
 			for (let i in insert) {
 				keys.push(i);
-				values.push(
-					self.escape(insert[i].toString(), params.escapeValues)
-				);
+				values.push(self.escape(insert[i], params.escapeValues));
 			}
 			let sql = `
 	        INSERT INTO ${self.variables.table} (${keys.join(",")}) 
@@ -279,9 +275,7 @@ class default_1 {
 			let values = [];
 			for (let i in insert) {
 				keys.push(i);
-				values.push(
-					self.escape(insert[i].toString(), params.escapeValues)
-				);
+				values.push(self.escape(insert[i], params.escapeValues));
 			}
 			let sql = `
 	        REPLACE INTO ${self.variables.table} (${keys.join(",")}) 

@@ -109,8 +109,9 @@ export default class {
 		return this;
 	}
 
-	public escape(value: string, escape: boolean = true) {
+	public escape(value: any, escape: boolean = true) {
 		if (escape === false) return value;
+		if (value === null) return "null";
 
 		return this.pool.escape(value);
 	}
@@ -285,7 +286,7 @@ export default class {
 	}
 
 	public async update(
-		update: { [s: string]: string | number },
+		update: { [s: string]: string | number | null },
 		callback?: Callback,
 		params: { ResultCheckBy?: Comparison; escapeValues?: boolean } = {},
 		safeMode: boolean = true
@@ -301,12 +302,7 @@ export default class {
 		let set = [];
 
 		for (let i in update) {
-			set.push(
-				`${i} = ${self.escape(
-					update[i].toString(),
-					params.escapeValues
-				)}`
-			);
+			set.push(`${i} = ${self.escape(update[i], params.escapeValues)}`);
 		}
 
 		let sql = `
@@ -329,7 +325,7 @@ export default class {
 	}
 
 	public async insert(
-		insert: { [s: string]: string | number },
+		insert: { [s: string]: string | number | null },
 		callback?: Callback,
 		params: { escapeValues?: boolean } = {}
 	) {
@@ -340,7 +336,7 @@ export default class {
 
 		for (let i in insert) {
 			keys.push(i);
-			values.push(self.escape(insert[i].toString(), params.escapeValues));
+			values.push(self.escape(insert[i], params.escapeValues));
 		}
 
 		let sql = `
@@ -360,7 +356,7 @@ export default class {
 	}
 
 	public async replace(
-		insert: { [s: string]: string | number },
+		insert: { [s: string]: string | number | null },
 		callback?: Callback,
 		params: { escapeValues?: boolean } = {}
 	) {
@@ -371,7 +367,7 @@ export default class {
 
 		for (let i in insert) {
 			keys.push(i);
-			values.push(self.escape(insert[i].toString(), params.escapeValues));
+			values.push(self.escape(insert[i], params.escapeValues));
 		}
 
 		let sql = `

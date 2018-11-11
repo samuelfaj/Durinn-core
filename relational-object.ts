@@ -48,7 +48,16 @@ export default class RelationalObject {
 		return (this.cache = query.rows[0] || null);
 	}
 
-	public async insert(fields: { [s: string]: string | number }) {
+	public async new(fields: { [s: string]: string | number | null }) {
+		const query = this.query;
+		const constructor: any = this.constructor;
+
+		await query.insert(fields);
+
+		return new constructor();
+	}
+
+	public async insert(fields: { [s: string]: string | number | null }) {
 		const query = this.query;
 		const filter = this.filter;
 
@@ -61,7 +70,7 @@ export default class RelationalObject {
 		return query.result;
 	}
 
-	public async replace(fields: { [s: string]: string | number }) {
+	public async replace(fields: { [s: string]: string | number | null }) {
 		const query = this.query;
 		const filter = this.filter;
 
@@ -75,7 +84,7 @@ export default class RelationalObject {
 	}
 
 	public async update(
-		field: string | { [s: string]: string | number },
+		field: string | { [s: string]: string | number | null },
 		value?: string | number
 	): Promise<boolean> {
 		const query = this.query;

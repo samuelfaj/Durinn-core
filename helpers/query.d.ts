@@ -53,7 +53,7 @@ export default class {
 	constructor(table?: string);
 	reset(): void;
 	table(name: string): this;
-	escape(value: string, escape?: boolean): string;
+	escape(value: any, escape?: boolean): any;
 	where(
 		field: string | number,
 		operator: string,
@@ -93,7 +93,7 @@ export default class {
 	): Promise<[boolean, Response, MysqlError | null]>;
 	update(
 		update: {
-			[s: string]: string | number;
+			[s: string]: string | number | null;
 		},
 		callback?: Callback,
 		params?: {
@@ -104,7 +104,7 @@ export default class {
 	): Promise<(boolean | MysqlError | Response | null)[]>;
 	insert(
 		insert: {
-			[s: string]: string | number;
+			[s: string]: string | number | null;
 		},
 		callback?: Callback,
 		params?: {
@@ -113,7 +113,7 @@ export default class {
 	): Promise<(boolean | MysqlError | Response | null)[]>;
 	replace(
 		insert: {
-			[s: string]: string | number;
+			[s: string]: string | number | null;
 		},
 		callback?: Callback,
 		params?: {
