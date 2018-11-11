@@ -48,15 +48,6 @@ export default class RelationalObject {
 		return (this.cache = query.rows[0] || null);
 	}
 
-	public async new(fields: { [s: string]: string | number | null }) {
-		const query = this.query;
-		const constructor: any = this.constructor;
-
-		await query.insert(fields);
-
-		return new constructor();
-	}
-
 	public async insert(fields: { [s: string]: string | number | null }) {
 		const query = this.query;
 		const filter = this.filter;
