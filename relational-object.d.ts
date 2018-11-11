@@ -7,13 +7,16 @@ export default class RelationalObject {
 	protected filter: PrimaryKey;
 	protected cache: object | undefined;
 	constructor(table: string, filter: PrimaryKey);
-	readonly query: Query;
-	readonly data: Promise<any>;
-	get(): Promise<any>;
-	new(fields: { [s: string]: string | number | null }): Promise<any>;
-	insert(fields: { [s: string]: string | number | null }): Promise<boolean>;
-	replace(fields: { [s: string]: string | number | null }): Promise<boolean>;
-	update(
+	protected readonly query: Query;
+	protected readonly data: Promise<any>;
+	protected get(): Promise<any>;
+	protected insert(fields: {
+		[s: string]: string | number | null;
+	}): Promise<boolean>;
+	protected replace(fields: {
+		[s: string]: string | number | null;
+	}): Promise<boolean>;
+	protected update(
 		field:
 			| string
 			| {
@@ -21,6 +24,6 @@ export default class RelationalObject {
 			  },
 		value?: string | number
 	): Promise<boolean>;
-	delete(): Promise<boolean>;
+	protected delete(): Promise<boolean>;
 }
 export {};

@@ -14,7 +14,7 @@ export default class RelationalObject {
 		this.filter = filter;
 	}
 
-	public get query(): Query {
+	protected get query(): Query {
 		const self = this;
 		const query = new Durinn.query(self.table);
 
@@ -25,7 +25,7 @@ export default class RelationalObject {
 		return query;
 	}
 
-	public get data(): Promise<any> {
+	protected get data(): Promise<any> {
 		const self = this;
 		return new Promise<any>(resolve => {
 			if (self.cache === undefined) {
@@ -40,7 +40,7 @@ export default class RelationalObject {
 		});
 	}
 
-	public async get(): Promise<any> {
+	protected async get(): Promise<any> {
 		const query = this.query;
 
 		await query.select();
@@ -48,7 +48,7 @@ export default class RelationalObject {
 		return (this.cache = query.rows[0] || null);
 	}
 
-	public async insert(fields: { [s: string]: string | number | null }) {
+	protected async insert(fields: { [s: string]: string | number | null }) {
 		const query = this.query;
 		const filter = this.filter;
 
@@ -61,7 +61,7 @@ export default class RelationalObject {
 		return query.result;
 	}
 
-	public async replace(fields: { [s: string]: string | number | null }) {
+	protected async replace(fields: { [s: string]: string | number | null }) {
 		const query = this.query;
 		const filter = this.filter;
 
@@ -74,7 +74,7 @@ export default class RelationalObject {
 		return query.result;
 	}
 
-	public async update(
+	protected async update(
 		field: string | { [s: string]: string | number | null },
 		value?: string | number
 	): Promise<boolean> {
@@ -93,7 +93,7 @@ export default class RelationalObject {
 		return false;
 	}
 
-	public async delete(): Promise<boolean> {
+	protected async delete(): Promise<boolean> {
 		const query = this.query;
 
 		await query.delete();
