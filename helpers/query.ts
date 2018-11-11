@@ -341,7 +341,7 @@ export default class {
 
 		let sql = `
 	        INSERT INTO ${self.variables.table} (${keys.join(",")}) 
-	        VALUES (${values.join(",")}) ${self.wheres}
+	        VALUES (${values.join(",")})
 	    `;
 
 		let [result, response, error] = await self.exec(sql);

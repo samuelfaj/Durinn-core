@@ -258,7 +258,7 @@ class default_1 {
 			}
 			let sql = `
 	        INSERT INTO ${self.variables.table} (${keys.join(",")}) 
-	        VALUES (${values.join(",")}) ${self.wheres}
+	        VALUES (${values.join(",")})
 	    `;
 			let [result, response, error] = yield self.exec(sql);
 			response.result = response.insertId != 0;
