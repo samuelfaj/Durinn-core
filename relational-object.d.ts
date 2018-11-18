@@ -3,8 +3,8 @@ declare type PrimaryKey = {
 	[s: string]: string | number;
 };
 export default class RelationalObject {
-	protected table: string;
-	protected filter: PrimaryKey;
+	table: string;
+	filter: PrimaryKey;
 	protected cache: object | undefined;
 	constructor(table: string, filter: PrimaryKey);
 	readonly query: Query;

@@ -38,11 +38,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const durinn_1 = __importDefault(require("./durinn"));
 class RelationalObject {
 	constructor(table, filter) {
-		this.table = "";
-		this.filter = {};
-		this.cache = undefined;
 		this.table = table;
 		this.filter = filter;
+		this.cache = undefined;
 	}
 	get query() {
 		const self = this;

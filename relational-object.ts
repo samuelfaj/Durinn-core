@@ -1,18 +1,12 @@
 import Durinn from "./durinn";
 import Query from "./helpers/query";
 
-type PrimaryKey = { [s: string]: string | number };
+export type PrimaryKey = { [s: string]: string | number };
 
 export default class RelationalObject {
-	protected table: string = "";
-	protected filter: PrimaryKey = {};
-
 	protected cache: object | undefined = undefined;
 
-	constructor(table: string, filter: PrimaryKey) {
-		this.table = table;
-		this.filter = filter;
-	}
+	constructor(public table: string, public filter: PrimaryKey) {}
 
 	public get query(): Query {
 		const self = this;
