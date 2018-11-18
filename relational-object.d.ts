@@ -1,5 +1,5 @@
 import Query from "./helpers/query";
-declare type PrimaryKey = {
+export declare type PrimaryKey = {
 	[s: string]: string | number;
 };
 export default class RelationalObject {
@@ -22,4 +22,3 @@ export default class RelationalObject {
 	): Promise<boolean>;
 	delete(): Promise<boolean>;
 }
-export {};

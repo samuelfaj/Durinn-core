@@ -1,14 +1,7 @@
-import RelationalObject, { PrimaryKey } from "./relational-object";
+import RelationalObject from "./relational-object";
 
-type GroupsonFilter = { [s: string]: string | number | undefined };
-
-type Arguments = {
-	table: string;
-	father: RelationalObject;
-	filter: GroupsonFilter;
-	args: IArguments;
-	fatherFilter?: PrimaryKey;
-};
+export type GroupsonFilter = { [s: string]: string | number | undefined };
+export type Wheres = [string, string, string | number][];
 
 const validFilter = function(sonFilter: any) {
 	for (let item in sonFilter) {
@@ -18,35 +11,43 @@ const validFilter = function(sonFilter: any) {
 	return true;
 };
 
-export default class RelationalGroup extends RelationalObject {
-	table: string;
-	father: RelationalObject;
-	sonFilter: GroupsonFilter;
-	args: IArguments;
-	fatherFilter?: PrimaryKey;
+const buildFilter = function(filter: any) {
+	let response: any = {};
 
-	constructor(public _arguments: Arguments) {
-		super(
-			_arguments.table,
-			Object.assign(
-				_arguments.fatherFilter || _arguments.father.filter,
-				validFilter(_arguments.filter) ? _arguments.filter : {}
-			)
-		);
-
-		this.table = _arguments.table;
-		this.father = _arguments.father;
-		this.sonFilter = _arguments.filter;
-		this.args = _arguments.args;
-		this.fatherFilter = _arguments.fatherFilter;
+	for (let item in filter) {
+		if (typeof filter[item] !== "undefined") {
+			response[item] = filter[item];
+		}
 	}
 
-	public async get(
-		wheres?: [string, string, string | number][]
-	): Promise<any> {
+	return response;
+};
+
+const childFilter = function(filter: any) {
+	let response: any = {};
+
+	for (let item in filter) {
+		if (typeof filter[item] === "undefined") {
+			response[item] = filter[item];
+		}
+	}
+
+	return response;
+};
+
+export default class RelationalGroup extends RelationalObject {
+	constructor(
+		public table: string,
+		public args: IArguments,
+		public _filter: GroupsonFilter
+	) {
+		super(table, buildFilter(_filter));
+	}
+
+	public async get(wheres?: Wheres): Promise<any> {
 		const self = this;
 
-		if (validFilter(self.sonFilter)) {
+		if (validFilter(self._filter)) {
 			return super.get();
 		}
 
@@ -60,7 +61,9 @@ export default class RelationalGroup extends RelationalObject {
 
 		const result: RelationalGroup[] = [];
 
-		await query.select(undefined, { fields: Object.keys(self.sonFilter) });
+		await query.select(undefined, {
+			fields: Object.keys(childFilter(self._filter))
+		});
 
 		for (const item of query.rows) {
 			let args: any[] = Array.prototype.slice.call(self.args);
@@ -75,17 +78,17 @@ export default class RelationalGroup extends RelationalObject {
 		return result;
 	}
 
-	public async getAllData(
-		wheres?: [string, string, string | number][]
-	): Promise<any> {
+	public async getAllData(wheres?: Wheres): Promise<any> {
 		const response = await this.get(wheres);
+
+		if (response.constructor !== Array) {
+			return response;
+		}
 
 		let array: any[] = [];
 
-		for (let item of response) {
-			console.log(await item.get());
-
-			array.push(item.get());
+		for (let i in response) {
+			array.push(response[i].get());
 		}
 
 		return Promise.all(array);
