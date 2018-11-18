@@ -42,27 +42,36 @@ const validFilter = function(sonFilter) {
 	}
 	return true;
 };
+const buildFilter = function(filter) {
+	let response = {};
+	for (let item in filter) {
+		if (typeof filter[item] !== "undefined") {
+			response[item] = filter[item];
+		}
+	}
+	return response;
+};
+const childFilter = function(filter) {
+	let response = {};
+	for (let item in filter) {
+		if (typeof filter[item] === "undefined") {
+			response[item] = filter[item];
+		}
+	}
+	return response;
+};
 class RelationalGroup extends relational_object_1.default {
-	constructor(_arguments) {
-		super(
-			_arguments.table,
-			Object.assign(
-				_arguments.fatherFilter || _arguments.father.filter,
-				validFilter(_arguments.filter) ? _arguments.filter : {}
-			)
-		);
-		this._arguments = _arguments;
-		this.table = _arguments.table;
-		this.father = _arguments.father;
-		this.sonFilter = _arguments.filter;
-		this.args = _arguments.args;
-		this.fatherFilter = _arguments.fatherFilter;
+	constructor(table, args, _filter) {
+		super(table, buildFilter(_filter));
+		this.table = table;
+		this.args = args;
+		this._filter = _filter;
 	}
 	get(wheres) {
 		const _super = name => super[name];
 		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
-			if (validFilter(self.sonFilter)) {
+			if (validFilter(self._filter)) {
 				return _super("get").call(this);
 			}
 			const query = this.query;
@@ -73,7 +82,7 @@ class RelationalGroup extends relational_object_1.default {
 			}
 			const result = [];
 			yield query.select(undefined, {
-				fields: Object.keys(self.sonFilter)
+				fields: Object.keys(childFilter(self._filter))
 			});
 			for (const item of query.rows) {
 				let args = Array.prototype.slice.call(self.args);
@@ -88,10 +97,12 @@ class RelationalGroup extends relational_object_1.default {
 	getAllData(wheres) {
 		return __awaiter(this, void 0, void 0, function*() {
 			const response = yield this.get(wheres);
+			if (response.constructor !== Array) {
+				return response;
+			}
 			let array = [];
-			for (let item of response) {
-				console.log(yield item.get());
-				array.push(item.get());
+			for (let i in response) {
+				array.push(response[i].get());
 			}
 			return Promise.all(array);
 		});
