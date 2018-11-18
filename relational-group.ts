@@ -61,6 +61,11 @@ export default class RelationalGroup extends RelationalObject {
 
 		const result: RelationalGroup[] = [];
 
+		for (let i in self.joins) {
+			let args = Array.prototype.slice.call(self.joins[i]);
+			query.join(args[0], args[1], args[2], args[3]);
+		}
+
 		await query.select(undefined, {
 			fields: Object.keys(childFilter(self._filter))
 		});

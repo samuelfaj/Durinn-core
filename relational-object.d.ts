@@ -6,6 +6,7 @@ export default class RelationalObject {
 	table: string;
 	filter: PrimaryKey;
 	protected cache: object | undefined;
+	joins: IArguments[];
 	constructor(table: string, filter: PrimaryKey);
 	readonly query: Query;
 	readonly data: Promise<any>;
@@ -21,4 +22,15 @@ export default class RelationalObject {
 		value?: string | number
 	): Promise<boolean>;
 	delete(): Promise<boolean>;
+	protected addJoin(
+		table: string,
+		on:
+			| {
+					from: string;
+					to: string;
+			  }[]
+			| string,
+		to?: string,
+		type?: string
+	): void;
 }

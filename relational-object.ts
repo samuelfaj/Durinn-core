@@ -5,6 +5,7 @@ export type PrimaryKey = { [s: string]: string | number };
 
 export default class RelationalObject {
 	protected cache: object | undefined = undefined;
+	public joins: IArguments[] = [];
 
 	constructor(public table: string, public filter: PrimaryKey) {}
 
@@ -35,7 +36,13 @@ export default class RelationalObject {
 	}
 
 	public async get(): Promise<any> {
+		const self = this;
 		const query = this.query;
+
+		for (let i in self.joins) {
+			let args = Array.prototype.slice.call(self.joins[i]);
+			query.join(args[0], args[1], args[2], args[3]);
+		}
 
 		await query.select();
 
@@ -93,5 +100,14 @@ export default class RelationalObject {
 		await query.delete();
 
 		return query.result;
+	}
+
+	protected addJoin(
+		table: string,
+		on: { from: string; to: string }[] | string,
+		to?: string,
+		type = "INNER"
+	) {
+		this.joins.push(arguments);
 	}
 }
