@@ -3,7 +3,7 @@
 		"node": ">=8.10"
 	},
 	"name": "durinn",
-	"version": "0.6.26",
+	"version": "0.6.27",
 	"description": "A Node.js object-oriented programming framework",
 	"main": "durinn.js",
 	"types": "durinn.d.ts",
@@ -57,7 +57,7 @@
 	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "lint-staged && npm test"
+			"pre-commit": "npm run prepare && git add . && lint-staged && npm test"
 		}
 	},
 	"lint-staged": {

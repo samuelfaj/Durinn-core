@@ -119,7 +119,7 @@ class RelationalObject {
 			return query.result;
 		});
 	}
-	addJoin(table, on, to, type = "INNER") {
+	join(table, on, to, type = "INNER") {
 		this.joins.push(arguments);
 	}
 }

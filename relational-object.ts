@@ -102,7 +102,7 @@ export default class RelationalObject {
 		return query.result;
 	}
 
-	protected addJoin(
+	protected join(
 		table: string,
 		on: { from: string; to: string }[] | string,
 		to?: string,

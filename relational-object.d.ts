@@ -22,7 +22,7 @@ export default class RelationalObject {
 		value?: string | number
 	): Promise<boolean>;
 	delete(): Promise<boolean>;
-	protected addJoin(
+	protected join(
 		table: string,
 		on:
 			| {
