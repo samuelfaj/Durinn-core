@@ -345,11 +345,7 @@ class default_1 {
 			let relations = [];
 			for (let i in join.on) {
 				let relation = join.on[i];
-				relations.push(
-					self.escape(relation.from) +
-						" = " +
-						self.escape(relation.to)
-				);
+				relations.push(relation.from + " = " + relation.to);
 			}
 			result.push(
 				`${join.type} JOIN ${join.table} ON ${relations.join(" AND ")}`
