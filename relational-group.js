@@ -67,7 +67,7 @@ class RelationalGroup extends relational_object_1.default {
 		this.args = args;
 		this._filter = _filter;
 	}
-	get(wheres) {
+	get(wheres, limit) {
 		const _super = name => super[name];
 		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
@@ -85,6 +85,9 @@ class RelationalGroup extends relational_object_1.default {
 				let args = Array.prototype.slice.call(self.joins[i]);
 				query.join(args[0], args[1], args[2], args[3]);
 			}
+			if (limit) {
+				query.limit(limit[0], limit[1]);
+			}
 			yield query.select(undefined, {
 				fields: Object.keys(childFilter(self._filter))
 			});
@@ -98,9 +101,9 @@ class RelationalGroup extends relational_object_1.default {
 			return result;
 		});
 	}
-	getAllData(wheres) {
+	getAllData(wheres, limit) {
 		return __awaiter(this, void 0, void 0, function*() {
-			const response = yield this.get(wheres);
+			const response = yield this.get(wheres, limit);
 			if (response.constructor !== Array) {
 				return response;
 			}
