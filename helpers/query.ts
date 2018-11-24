@@ -68,7 +68,7 @@ type Order = "ASC" | "DESC" | "asc" | "desc";
 type Orders = { field: string; order: Order }[];
 type Groups = string[];
 
-export default class {
+export default class Query {
 	pool: Pool;
 	response: Response;
 	variables: Variables;

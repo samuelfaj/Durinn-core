@@ -59,7 +59,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * ----------------------------------------------------
  */
 const durinn_1 = __importDefault(require("../durinn"));
-class default_1 {
+class Query {
 	constructor(table) {
 		this.connection = "destroy";
 		this.pool = durinn_1.default.database.connection;
@@ -413,4 +413,4 @@ class default_1 {
 		}
 	}
 }
-exports.default = default_1;
+exports.default = Query;

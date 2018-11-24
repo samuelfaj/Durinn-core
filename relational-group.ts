@@ -35,7 +35,7 @@ const childFilter = function(filter: any) {
 	return response;
 };
 
-export type Limit = [number, number] | [number];
+export type Limit = [number, number] | number;
 
 export default class RelationalGroup extends RelationalObject {
 	constructor(
@@ -68,8 +68,12 @@ export default class RelationalGroup extends RelationalObject {
 			query.join(args[0], args[1], args[2], args[3]);
 		}
 
-		if (limit) {
-			query.limit(limit[0], limit[1]);
+		if (typeof limit !== "undefined") {
+			if (typeof limit === "number") {
+				query.limit(limit);
+			} else {
+				query.limit(limit[0], limit[1]);
+			}
 		}
 
 		await query.select(undefined, {

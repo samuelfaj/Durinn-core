@@ -45,7 +45,7 @@ declare type Orders = {
 	order: Order;
 }[];
 declare type Groups = string[];
-export default class {
+export default class Query {
 	pool: Pool;
 	response: Response;
 	variables: Variables;
