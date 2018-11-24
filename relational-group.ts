@@ -35,9 +35,12 @@ const childFilter = function(filter: any) {
 	return response;
 };
 
-export type Limit = [number, number] | number;
+export type Limit = [number, number | undefined] | undefined;
 
 export default class RelationalGroup extends RelationalObject {
+	_wheres: Wheres = [];
+	_limit: Limit = undefined;
+
 	constructor(
 		public table: string,
 		public args: IArguments,
@@ -68,12 +71,8 @@ export default class RelationalGroup extends RelationalObject {
 			query.join(args[0], args[1], args[2], args[3]);
 		}
 
-		if (typeof limit !== "undefined") {
-			if (typeof limit === "number") {
-				query.limit(limit);
-			} else {
-				query.limit(limit[0], limit[1]);
-			}
+		if (typeof self._limit !== "undefined") {
+			query.limit(self._limit[0], self._limit[1]);
 		}
 
 		await query.select(undefined, {
@@ -93,8 +92,20 @@ export default class RelationalGroup extends RelationalObject {
 		return result;
 	}
 
-	public async getAllData(wheres?: Wheres, limit?: Limit): Promise<any> {
-		const response = await this.get(wheres, limit);
+	public where(field: string, operator: string, value: string | number) {
+		this._wheres.push([field, operator, value]);
+
+		return this;
+	}
+
+	public limit(limit: number, offset?: number) {
+		this._limit = [limit, offset];
+
+		return this;
+	}
+
+	public async getAllData(): Promise<any> {
+		const response = await this.get(this._wheres, this._limit);
 
 		if (response.constructor !== Array) {
 			return response;
