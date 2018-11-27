@@ -4,10 +4,14 @@ import Query from "./helpers/query";
 export type PrimaryKey = { [s: string]: string | number };
 
 export default class RelationalObject {
-	protected cache: object | undefined = undefined;
+	public last: { query: Query } = { query: new Query() };
 	public joins: IArguments[] = [];
 
-	constructor(public table: string, public filter: PrimaryKey) {}
+	protected cache: object | undefined = undefined;
+
+	constructor(public table: string, public filter: PrimaryKey) {
+		this.last.query = new Durinn.query(this.table);
+	}
 
 	public get query(): Query {
 		const self = this;
@@ -49,7 +53,9 @@ export default class RelationalObject {
 		return (this.cache = query.rows[0] || {});
 	}
 
-	public async insert(fields: { [s: string]: string | number | null }) {
+	public async insert(fields: {
+		[s: string]: string | number | null;
+	}): Promise<number | false> {
 		const query = this.query;
 		const filter = this.filter;
 
@@ -59,7 +65,7 @@ export default class RelationalObject {
 
 		await query.insert(fields);
 
-		return query.result;
+		return query.insertId || false;
 	}
 
 	public async replace(fields: { [s: string]: string | number | null }) {

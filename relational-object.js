@@ -36,12 +36,15 @@ var __importDefault =
 	};
 Object.defineProperty(exports, "__esModule", { value: true });
 const durinn_1 = __importDefault(require("./durinn"));
+const query_1 = __importDefault(require("./helpers/query"));
 class RelationalObject {
 	constructor(table, filter) {
 		this.table = table;
 		this.filter = filter;
-		this.cache = undefined;
+		this.last = { query: new query_1.default() };
 		this.joins = [];
+		this.cache = undefined;
+		this.last.query = new durinn_1.default.query(this.table);
 	}
 	get query() {
 		const self = this;
@@ -84,7 +87,7 @@ class RelationalObject {
 				fields[item] = filter[item];
 			}
 			yield query.insert(fields);
-			return query.result;
+			return query.insertId || false;
 		});
 	}
 	replace(fields) {
