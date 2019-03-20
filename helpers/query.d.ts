@@ -91,6 +91,13 @@ export default class Query {
 			ResultCheckBy?: Comparison;
 		}
 	): Promise<[boolean, Response, MysqlError | null]>;
+	distinct(
+		callback?: Callback,
+		params?: {
+			fields?: string[];
+			ResultCheckBy?: Comparison;
+		}
+	): Promise<[boolean, Response, MysqlError | null]>;
 	update(
 		update: {
 			[s: string]: string | number | null;

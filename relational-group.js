@@ -70,11 +70,13 @@ class RelationalGroup extends relational_object_1.default {
 		this._limit = undefined;
 	}
 	get(wheres, limit) {
-		const _super = name => super[name];
+		const _super = Object.create(null, {
+			get: { get: () => super.get }
+		});
 		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
 			if (validFilter(self._filter)) {
-				return _super("get").call(this);
+				return _super.get.call(this);
 			}
 			const query = this.query;
 			if (typeof wheres !== "undefined") {
@@ -107,8 +109,8 @@ class RelationalGroup extends relational_object_1.default {
 		this._wheres.push([field, operator, value]);
 		return this;
 	}
-	limit(limit, offset) {
-		this._limit = [limit, offset];
+	limit(limit, offset = 0) {
+		this._limit = [offset, limit];
 		return this;
 	}
 	getAllData() {

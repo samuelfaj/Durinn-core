@@ -98,8 +98,8 @@ export default class RelationalGroup extends RelationalObject {
 		return this;
 	}
 
-	public limit(limit: number, offset?: number) {
-		this._limit = [limit, offset];
+	public limit(limit: number, offset: number = 0) {
+		this._limit = [offset, limit];
 
 		return this;
 	}

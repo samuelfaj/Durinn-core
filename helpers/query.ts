@@ -285,6 +285,36 @@ export default class Query {
 		return [response.result, response, error];
 	}
 
+	public async distinct(
+		callback?: Callback,
+		params: { fields?: string[]; ResultCheckBy?: Comparison } = {}
+	): Promise<[boolean, Response, MysqlError | null]> {
+		const self = this;
+
+		let sql = ` 
+		    SELECT DISTINCT ${(params.fields || ["*"]).join(",")} FROM ${
+			self.variables.table
+		} 
+	        ${self.joins}  ${self.wheres}  ${self.groups}  ${self.orders}  ${
+			self.limits
+		}
+	    `;
+
+		let [result, response, error] = await self.exec(sql);
+
+		response.result = self.compare(
+			response.rows.length,
+			params.ResultCheckBy || ">",
+			0
+		);
+
+		if (typeof callback === "function") {
+			callback(response.result, response, error);
+		}
+
+		return [response.result, response, error];
+	}
+
 	public async update(
 		update: { [s: string]: string | number | null },
 		callback?: Callback,

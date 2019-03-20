@@ -218,6 +218,29 @@ class Query {
 			return [response.result, response, error];
 		});
 	}
+	distinct(callback, params = {}) {
+		return __awaiter(this, void 0, void 0, function*() {
+			const self = this;
+			let sql = ` 
+		    SELECT DISTINCT ${(params.fields || ["*"]).join(",")} FROM ${
+	self.variables.table
+} 
+	        ${self.joins}  ${self.wheres}  ${self.groups}  ${self.orders}  ${
+	self.limits
+}
+	    `;
+			let [result, response, error] = yield self.exec(sql);
+			response.result = self.compare(
+				response.rows.length,
+				params.ResultCheckBy || ">",
+				0
+			);
+			if (typeof callback === "function") {
+				callback(response.result, response, error);
+			}
+			return [response.result, response, error];
+		});
+	}
 	update(update, callback, params = {}, safeMode = true) {
 		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;

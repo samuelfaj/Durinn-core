@@ -3,7 +3,7 @@
 		"node": ">=8.10"
 	},
 	"name": "durinn",
-	"version": "0.6.32",
+	"version": "0.6.35",
 	"description": "A Node.js object-oriented programming framework",
 	"main": "durinn.js",
 	"types": "durinn.d.ts",
