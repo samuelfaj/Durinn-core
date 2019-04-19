@@ -109,6 +109,27 @@ export default class Query {
 		return this;
 	}
 
+	public async describe() {
+		const self = this;
+		const [result, response, error] = await self.exec(
+			"DESCRIBE " + self.variables.table
+		);
+		return response;
+	}
+
+	public get table_fields(): Promise<string[]> {
+		const self = this;
+		return new Promise(async resolve => {
+			const fields = [];
+			const describe = await self.describe();
+			for (let item of describe.rows) {
+				fields.push(item.Field);
+			}
+
+			resolve(fields);
+		});
+	}
+
 	public escape(value: any, escape: boolean = true) {
 		if (escape === false) return value;
 		if (value === null) return "null";
@@ -226,6 +247,7 @@ export default class Query {
 						self.resetResult();
 
 						if (error) {
+							console.error(self.variables.sql);
 							throw error;
 						} else {
 							self.response = {
@@ -322,6 +344,7 @@ export default class Query {
 		safeMode: boolean = true
 	) {
 		const self = this;
+		const fields = await self.table_fields;
 
 		if (safeMode && self.wheres.length === 0) {
 			throw new Error(
@@ -332,7 +355,11 @@ export default class Query {
 		let set = [];
 
 		for (let i in update) {
-			set.push(`${i} = ${self.escape(update[i], params.escapeValues)}`);
+			if (fields.indexOf(i) > -1) {
+				set.push(
+					`${i} = ${self.escape(update[i], params.escapeValues)}`
+				);
+			}
 		}
 
 		let sql = `
@@ -360,13 +387,16 @@ export default class Query {
 		params: { escapeValues?: boolean } = {}
 	) {
 		const self = this;
+		const fields = await self.table_fields;
 
 		let keys: string[] = [];
 		let values: string[] = [];
 
 		for (let i in insert) {
-			keys.push(i);
-			values.push(self.escape(insert[i], params.escapeValues));
+			if (fields.indexOf(i) > -1) {
+				keys.push(i);
+				values.push(self.escape(insert[i], params.escapeValues));
+			}
 		}
 
 		let sql = `
@@ -391,13 +421,16 @@ export default class Query {
 		params: { escapeValues?: boolean } = {}
 	) {
 		const self = this;
+		const fields = await self.table_fields;
 
 		let keys: string[] = [];
 		let values: string[] = [];
 
 		for (let i in insert) {
-			keys.push(i);
-			values.push(self.escape(insert[i], params.escapeValues));
+			if (fields.indexOf(i) > -1) {
+				keys.push(i);
+				values.push(self.escape(insert[i], params.escapeValues));
+			}
 		}
 
 		let sql = `

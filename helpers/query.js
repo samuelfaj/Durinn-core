@@ -91,6 +91,28 @@ class Query {
 		this.variables.table = name;
 		return this;
 	}
+	describe() {
+		return __awaiter(this, void 0, void 0, function*() {
+			const self = this;
+			const [result, response, error] = yield self.exec(
+				"DESCRIBE " + self.variables.table
+			);
+			return response;
+		});
+	}
+	get table_fields() {
+		const self = this;
+		return new Promise(resolve =>
+			__awaiter(this, void 0, void 0, function*() {
+				const fields = [];
+				const describe = yield self.describe();
+				for (let item of describe.rows) {
+					fields.push(item.Field);
+				}
+				resolve(fields);
+			})
+		);
+	}
 	escape(value, escape = true) {
 		if (escape === false) return value;
 		if (value === null) return "null";
@@ -169,6 +191,7 @@ class Query {
 						}
 						self.resetResult();
 						if (error) {
+							console.error(self.variables.sql);
 							throw error;
 						} else {
 							self.response = {
@@ -244,6 +267,7 @@ class Query {
 	update(update, callback, params = {}, safeMode = true) {
 		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
+			const fields = yield self.table_fields;
 			if (safeMode && self.wheres.length === 0) {
 				throw new Error(
 					"Durinn - SAFE MODE - There isn't a where condition in UPDATE query"
@@ -251,9 +275,11 @@ class Query {
 			}
 			let set = [];
 			for (let i in update) {
-				set.push(
-					`${i} = ${self.escape(update[i], params.escapeValues)}`
-				);
+				if (fields.indexOf(i) > -1) {
+					set.push(
+						`${i} = ${self.escape(update[i], params.escapeValues)}`
+					);
+				}
 			}
 			let sql = `
 	        UPDATE ${self.variables.table} SET ${set.join(",")} ${self.wheres} 
@@ -273,11 +299,14 @@ class Query {
 	insert(insert, callback, params = {}) {
 		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
+			const fields = yield self.table_fields;
 			let keys = [];
 			let values = [];
 			for (let i in insert) {
-				keys.push(i);
-				values.push(self.escape(insert[i], params.escapeValues));
+				if (fields.indexOf(i) > -1) {
+					keys.push(i);
+					values.push(self.escape(insert[i], params.escapeValues));
+				}
 			}
 			let sql = `
 	        INSERT INTO ${self.variables.table} (${keys.join(",")}) 
@@ -294,11 +323,14 @@ class Query {
 	replace(insert, callback, params = {}) {
 		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
+			const fields = yield self.table_fields;
 			let keys = [];
 			let values = [];
 			for (let i in insert) {
-				keys.push(i);
-				values.push(self.escape(insert[i], params.escapeValues));
+				if (fields.indexOf(i) > -1) {
+					keys.push(i);
+					values.push(self.escape(insert[i], params.escapeValues));
+				}
 			}
 			let sql = `
 	        REPLACE INTO ${self.variables.table} (${keys.join(",")}) 
