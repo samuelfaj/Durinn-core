@@ -4,7 +4,7 @@ import * as MySQL from "mysql";
 
 export default class {
 	public static get connection(): Pool {
-		return MySQL.createPool(Durinn.config.database);
+		return Durinn.pool;
 	}
 
 	public static get object(): object {

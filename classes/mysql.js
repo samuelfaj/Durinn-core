@@ -20,7 +20,7 @@ const durinn_1 = __importDefault(require("../durinn"));
 const MySQL = __importStar(require("mysql"));
 class default_1 {
 	static get connection() {
-		return MySQL.createPool(durinn_1.default.config.database);
+		return durinn_1.default.pool;
 	}
 	static get object() {
 		return MySQL;

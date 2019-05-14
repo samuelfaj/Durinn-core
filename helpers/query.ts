@@ -229,9 +229,12 @@ export default class Query {
 		self.variables.sql = sql || self.variables.sql;
 
 		return new Promise<[boolean, Response, (MysqlError | null)]>(
-			resolve => {
+			(resolve, reject) => {
 				self.pool.getConnection(function(err, connection) {
-					if (err) throw err;
+					if (err) {
+						reject(err);
+						return false;
+					}
 
 					connection.query(self.variables.sql, function(
 						error,
@@ -248,7 +251,8 @@ export default class Query {
 
 						if (error) {
 							console.error(self.variables.sql);
-							throw error;
+							reject(error);
+							return false;
 						} else {
 							self.response = {
 								rows: results,
@@ -292,19 +296,23 @@ export default class Query {
 		}
 	    `;
 
-		let [result, response, error] = await self.exec(sql);
+		try {
+			let [result, response, error] = await self.exec(sql);
 
-		response.result = self.compare(
-			response.rows.length,
-			params.ResultCheckBy || ">",
-			0
-		);
+			response.result = self.compare(
+				response.rows.length,
+				params.ResultCheckBy || ">",
+				0
+			);
 
-		if (typeof callback === "function") {
-			callback(response.result, response, error);
+			if (typeof callback === "function") {
+				callback(response.result, response, error);
+			}
+
+			return [response.result, response, error];
+		} catch (e) {
+			throw e;
 		}
-
-		return [response.result, response, error];
 	}
 
 	public async distinct(
@@ -322,19 +330,23 @@ export default class Query {
 		}
 	    `;
 
-		let [result, response, error] = await self.exec(sql);
+		try {
+			let [result, response, error] = await self.exec(sql);
 
-		response.result = self.compare(
-			response.rows.length,
-			params.ResultCheckBy || ">",
-			0
-		);
+			response.result = self.compare(
+				response.rows.length,
+				params.ResultCheckBy || ">",
+				0
+			);
 
-		if (typeof callback === "function") {
-			callback(response.result, response, error);
+			if (typeof callback === "function") {
+				callback(response.result, response, error);
+			}
+
+			return [response.result, response, error];
+		} catch (e) {
+			throw e;
 		}
-
-		return [response.result, response, error];
 	}
 
 	public async update(
@@ -366,19 +378,23 @@ export default class Query {
 	        UPDATE ${self.variables.table} SET ${set.join(",")} ${self.wheres} 
 	    `;
 
-		let [result, response, error] = await self.exec(sql);
+		try {
+			let [result, response, error] = await self.exec(sql);
 
-		response.result = self.compare(
-			response.changedRows,
-			params.ResultCheckBy || ">=",
-			0
-		);
+			response.result = self.compare(
+				response.changedRows,
+				params.ResultCheckBy || ">=",
+				0
+			);
 
-		if (typeof callback === "function") {
-			callback(response.result, response, error);
+			if (typeof callback === "function") {
+				callback(response.result, response, error);
+			}
+
+			return [response.result, response, error];
+		} catch (e) {
+			throw e;
 		}
-
-		return [response.result, response, error];
 	}
 
 	public async insert(
@@ -404,15 +420,19 @@ export default class Query {
 	        VALUES (${values.join(",")})
 	    `;
 
-		let [result, response, error] = await self.exec(sql);
+		try {
+			let [result, response, error] = await self.exec(sql);
 
-		response.result = response.insertId != 0;
+			response.result = response.insertId != 0;
 
-		if (typeof callback === "function") {
-			callback(response.result, response, error);
+			if (typeof callback === "function") {
+				callback(response.result, response, error);
+			}
+
+			return [response.result, response, error];
+		} catch (e) {
+			throw e;
 		}
-
-		return [response.result, response, error];
 	}
 
 	public async replace(
@@ -438,15 +458,19 @@ export default class Query {
 	        VALUES (${values.join(",")}) ${self.wheres}
 	    `;
 
-		let [result, response, error] = await self.exec(sql);
+		try {
+			let [result, response, error] = await self.exec(sql);
 
-		response.result = response.insertId != 0;
+			response.result = response.insertId != 0;
 
-		if (typeof callback === "function") {
-			callback(response.result, response, error);
+			if (typeof callback === "function") {
+				callback(response.result, response, error);
+			}
+
+			return [response.result, response, error];
+		} catch (e) {
+			throw e;
 		}
-
-		return [response.result, response, error];
 	}
 
 	public async delete(
@@ -466,19 +490,23 @@ export default class Query {
 	        DELETE FROM ${self.variables.table} ${self.wheres} 
 	    `;
 
-		let [result, response, error] = await self.exec(sql);
+		try {
+			let [result, response, error] = await self.exec(sql);
 
-		response.result = self.compare(
-			response.affectedRows,
-			params.ResultCheckBy || ">",
-			0
-		);
+			response.result = self.compare(
+				response.affectedRows,
+				params.ResultCheckBy || ">",
+				0
+			);
 
-		if (typeof callback === "function") {
-			callback(response.result, response, error);
+			if (typeof callback === "function") {
+				callback(response.result, response, error);
+			}
+
+			return [response.result, response, error];
+		} catch (e) {
+			throw e;
 		}
-
-		return [response.result, response, error];
 	}
 
 	private resetResult() {
@@ -558,7 +586,7 @@ export default class Query {
 		if (groups.length === 0) return "";
 
 		for (let key in groups) {
-			result.push(self.escape(groups[key]));
+			result.push(groups[key]);
 		}
 
 		return ` GROUP BY ${result.join(",")} `;

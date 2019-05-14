@@ -1,3 +1,5 @@
+import * as MySQL from "mysql";
+
 const fs = require("fs");
 
 let Config = require("./durinn.config");
@@ -14,7 +16,13 @@ import Mysql from "./classes/mysql";
 import Tests from "./classes/tests";
 import Query from "./helpers/query";
 
+const Pool = MySQL.createPool(Config.database);
+
 export default class {
+	public static get pool() {
+		return Pool;
+	}
+
 	public static get config() {
 		return Config;
 	}

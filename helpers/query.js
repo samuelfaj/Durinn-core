@@ -176,9 +176,12 @@ class Query {
 		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
 			self.variables.sql = sql || self.variables.sql;
-			return new Promise(resolve => {
+			return new Promise((resolve, reject) => {
 				self.pool.getConnection(function(err, connection) {
-					if (err) throw err;
+					if (err) {
+						reject(err);
+						return false;
+					}
 					connection.query(self.variables.sql, function(
 						error,
 						results,
@@ -192,7 +195,8 @@ class Query {
 						self.resetResult();
 						if (error) {
 							console.error(self.variables.sql);
-							throw error;
+							reject(error);
+							return false;
 						} else {
 							self.response = {
 								rows: results,
@@ -229,16 +233,20 @@ class Query {
 	self.limits
 }
 	    `;
-			let [result, response, error] = yield self.exec(sql);
-			response.result = self.compare(
-				response.rows.length,
-				params.ResultCheckBy || ">",
-				0
-			);
-			if (typeof callback === "function") {
-				callback(response.result, response, error);
+			try {
+				let [result, response, error] = yield self.exec(sql);
+				response.result = self.compare(
+					response.rows.length,
+					params.ResultCheckBy || ">",
+					0
+				);
+				if (typeof callback === "function") {
+					callback(response.result, response, error);
+				}
+				return [response.result, response, error];
+			} catch (e) {
+				throw e;
 			}
-			return [response.result, response, error];
 		});
 	}
 	distinct(callback, params = {}) {
@@ -252,16 +260,20 @@ class Query {
 	self.limits
 }
 	    `;
-			let [result, response, error] = yield self.exec(sql);
-			response.result = self.compare(
-				response.rows.length,
-				params.ResultCheckBy || ">",
-				0
-			);
-			if (typeof callback === "function") {
-				callback(response.result, response, error);
+			try {
+				let [result, response, error] = yield self.exec(sql);
+				response.result = self.compare(
+					response.rows.length,
+					params.ResultCheckBy || ">",
+					0
+				);
+				if (typeof callback === "function") {
+					callback(response.result, response, error);
+				}
+				return [response.result, response, error];
+			} catch (e) {
+				throw e;
 			}
-			return [response.result, response, error];
 		});
 	}
 	update(update, callback, params = {}, safeMode = true) {
@@ -284,16 +296,20 @@ class Query {
 			let sql = `
 	        UPDATE ${self.variables.table} SET ${set.join(",")} ${self.wheres} 
 	    `;
-			let [result, response, error] = yield self.exec(sql);
-			response.result = self.compare(
-				response.changedRows,
-				params.ResultCheckBy || ">=",
-				0
-			);
-			if (typeof callback === "function") {
-				callback(response.result, response, error);
+			try {
+				let [result, response, error] = yield self.exec(sql);
+				response.result = self.compare(
+					response.changedRows,
+					params.ResultCheckBy || ">=",
+					0
+				);
+				if (typeof callback === "function") {
+					callback(response.result, response, error);
+				}
+				return [response.result, response, error];
+			} catch (e) {
+				throw e;
 			}
-			return [response.result, response, error];
 		});
 	}
 	insert(insert, callback, params = {}) {
@@ -312,12 +328,16 @@ class Query {
 	        INSERT INTO ${self.variables.table} (${keys.join(",")}) 
 	        VALUES (${values.join(",")})
 	    `;
-			let [result, response, error] = yield self.exec(sql);
-			response.result = response.insertId != 0;
-			if (typeof callback === "function") {
-				callback(response.result, response, error);
+			try {
+				let [result, response, error] = yield self.exec(sql);
+				response.result = response.insertId != 0;
+				if (typeof callback === "function") {
+					callback(response.result, response, error);
+				}
+				return [response.result, response, error];
+			} catch (e) {
+				throw e;
 			}
-			return [response.result, response, error];
 		});
 	}
 	replace(insert, callback, params = {}) {
@@ -336,12 +356,16 @@ class Query {
 	        REPLACE INTO ${self.variables.table} (${keys.join(",")}) 
 	        VALUES (${values.join(",")}) ${self.wheres}
 	    `;
-			let [result, response, error] = yield self.exec(sql);
-			response.result = response.insertId != 0;
-			if (typeof callback === "function") {
-				callback(response.result, response, error);
+			try {
+				let [result, response, error] = yield self.exec(sql);
+				response.result = response.insertId != 0;
+				if (typeof callback === "function") {
+					callback(response.result, response, error);
+				}
+				return [response.result, response, error];
+			} catch (e) {
+				throw e;
 			}
-			return [response.result, response, error];
 		});
 	}
 	delete(callback, params = {}, safeMode = true) {
@@ -355,16 +379,20 @@ class Query {
 			let sql = `
 	        DELETE FROM ${self.variables.table} ${self.wheres} 
 	    `;
-			let [result, response, error] = yield self.exec(sql);
-			response.result = self.compare(
-				response.affectedRows,
-				params.ResultCheckBy || ">",
-				0
-			);
-			if (typeof callback === "function") {
-				callback(response.result, response, error);
+			try {
+				let [result, response, error] = yield self.exec(sql);
+				response.result = self.compare(
+					response.affectedRows,
+					params.ResultCheckBy || ">",
+					0
+				);
+				if (typeof callback === "function") {
+					callback(response.result, response, error);
+				}
+				return [response.result, response, error];
+			} catch (e) {
+				throw e;
 			}
-			return [response.result, response, error];
 		});
 	}
 	resetResult() {
@@ -426,7 +454,7 @@ class Query {
 		let groups = self.variables.conditions.groups;
 		if (groups.length === 0) return "";
 		for (let key in groups) {
-			result.push(self.escape(groups[key]));
+			result.push(groups[key]);
 		}
 		return ` GROUP BY ${result.join(",")} `;
 	}
