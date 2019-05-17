@@ -289,7 +289,10 @@ class Query {
 			for (let i in update) {
 				if (fields.indexOf(i) > -1) {
 					set.push(
-						`${i} = ${self.escape(update[i], params.escapeValues)}`
+						`\`${i}\` = ${self.escape(
+							update[i],
+							params.escapeValues
+						)}`
 					);
 				}
 			}
@@ -320,7 +323,7 @@ class Query {
 			let values = [];
 			for (let i in insert) {
 				if (fields.indexOf(i) > -1) {
-					keys.push(i);
+					keys.push("`" + i + "`");
 					values.push(self.escape(insert[i], params.escapeValues));
 				}
 			}
@@ -348,7 +351,7 @@ class Query {
 			let values = [];
 			for (let i in insert) {
 				if (fields.indexOf(i) > -1) {
-					keys.push(i);
+					keys.push("`" + i + "`");
 					values.push(self.escape(insert[i], params.escapeValues));
 				}
 			}
