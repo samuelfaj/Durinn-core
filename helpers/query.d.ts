@@ -56,6 +56,7 @@ export default class Query {
 	describe(): Promise<Response>;
 	readonly table_fields: Promise<string[]>;
 	escape(value: any, escape?: boolean): any;
+	escapeId(value: any, escape?: boolean): any;
 	where(
 		field: string | number,
 		operator: string,

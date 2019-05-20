@@ -111,7 +111,7 @@ export default class Query {
 
 	public async describe() {
 		const self = this;
-		const [result, response, error] = await self.exec(
+		const [result, response, error] = await new Query().exec(
 			"DESCRIBE " + self.variables.table
 		);
 		return response;
@@ -135,6 +135,12 @@ export default class Query {
 		if (value === null) return "null";
 
 		return this.pool.escape(value);
+	}
+
+	public escapeId(value: any, escape: boolean = true) {
+		if (escape === false) return value;
+
+		return this.pool.escapeId(value);
 	}
 
 	public where(
@@ -369,7 +375,10 @@ export default class Query {
 		for (let i in update) {
 			if (fields.indexOf(i) > -1) {
 				set.push(
-					`\`${i}\` = ${self.escape(update[i], params.escapeValues)}`
+					`${self.escapeId(i)} = ${self.escape(
+						update[i],
+						params.escapeValues
+					)}`
 				);
 			}
 		}
@@ -410,7 +419,7 @@ export default class Query {
 
 		for (let i in insert) {
 			if (fields.indexOf(i) > -1) {
-				keys.push("`" + i + "`");
+				keys.push(self.escapeId(i));
 				values.push(self.escape(insert[i], params.escapeValues));
 			}
 		}
@@ -448,14 +457,14 @@ export default class Query {
 
 		for (let i in insert) {
 			if (fields.indexOf(i) > -1) {
-				keys.push("`" + i + "`");
+				keys.push(self.escapeId(i));
 				values.push(self.escape(insert[i], params.escapeValues));
 			}
 		}
 
 		let sql = `
 	        REPLACE INTO ${self.variables.table} (${keys.join(",")}) 
-	        VALUES (${values.join(",")}) ${self.wheres}
+	        VALUES (${values.join(",")})
 	    `;
 
 		try {

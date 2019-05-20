@@ -94,7 +94,7 @@ class Query {
 	describe() {
 		return __awaiter(this, void 0, void 0, function*() {
 			const self = this;
-			const [result, response, error] = yield self.exec(
+			const [result, response, error] = yield new Query().exec(
 				"DESCRIBE " + self.variables.table
 			);
 			return response;
@@ -117,6 +117,10 @@ class Query {
 		if (escape === false) return value;
 		if (value === null) return "null";
 		return this.pool.escape(value);
+	}
+	escapeId(value, escape = true) {
+		if (escape === false) return value;
+		return this.pool.escapeId(value);
 	}
 	where(field, operator, value, escape = true) {
 		this.variables.conditions.wheres.push({
@@ -289,7 +293,7 @@ class Query {
 			for (let i in update) {
 				if (fields.indexOf(i) > -1) {
 					set.push(
-						`\`${i}\` = ${self.escape(
+						`${self.escapeId(i)} = ${self.escape(
 							update[i],
 							params.escapeValues
 						)}`
@@ -323,7 +327,7 @@ class Query {
 			let values = [];
 			for (let i in insert) {
 				if (fields.indexOf(i) > -1) {
-					keys.push("`" + i + "`");
+					keys.push(self.escapeId(i));
 					values.push(self.escape(insert[i], params.escapeValues));
 				}
 			}
@@ -351,13 +355,13 @@ class Query {
 			let values = [];
 			for (let i in insert) {
 				if (fields.indexOf(i) > -1) {
-					keys.push("`" + i + "`");
+					keys.push(self.escapeId(i));
 					values.push(self.escape(insert[i], params.escapeValues));
 				}
 			}
 			let sql = `
 	        REPLACE INTO ${self.variables.table} (${keys.join(",")}) 
-	        VALUES (${values.join(",")}) ${self.wheres}
+	        VALUES (${values.join(",")})
 	    `;
 			try {
 				let [result, response, error] = yield self.exec(sql);
