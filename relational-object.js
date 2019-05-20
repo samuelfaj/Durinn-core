@@ -79,23 +79,27 @@ class RelationalObject {
 			return (this.cache = query.rows[0] || {});
 		});
 	}
-	insert(fields) {
+	insert(fields, insert_filter = true) {
 		return __awaiter(this, void 0, void 0, function*() {
 			const query = this.query;
 			const filter = this.filter;
-			for (const item in filter) {
-				fields[item] = filter[item];
+			if (insert_filter) {
+				for (const item in filter) {
+					fields[item] = filter[item];
+				}
 			}
 			yield query.insert(fields);
 			return query.insertId || false;
 		});
 	}
-	replace(fields) {
+	replace(fields, insert_filter = true) {
 		return __awaiter(this, void 0, void 0, function*() {
 			const query = this.query;
 			const filter = this.filter;
-			for (const item in filter) {
-				fields[item] = filter[item];
+			if (insert_filter) {
+				for (const item in filter) {
+					fields[item] = filter[item];
+				}
 			}
 			yield query.replace(fields);
 			return query.result;

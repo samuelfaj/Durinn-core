@@ -53,14 +53,19 @@ export default class RelationalObject {
 		return (this.cache = query.rows[0] || {});
 	}
 
-	public async insert(fields: {
-		[s: string]: string | number | null;
-	}): Promise<number | false> {
+	public async insert(
+		fields: {
+			[s: string]: string | number | null;
+		},
+		insert_filter = true
+	): Promise<number | false> {
 		const query = this.query;
 		const filter = this.filter;
 
-		for (const item in filter) {
-			fields[item] = filter[item];
+		if (insert_filter) {
+			for (const item in filter) {
+				fields[item] = filter[item];
+			}
 		}
 
 		await query.insert(fields);
@@ -68,12 +73,17 @@ export default class RelationalObject {
 		return query.insertId || false;
 	}
 
-	public async replace(fields: { [s: string]: string | number | null }) {
+	public async replace(
+		fields: { [s: string]: string | number | null },
+		insert_filter = true
+	) {
 		const query = this.query;
 		const filter = this.filter;
 
-		for (const item in filter) {
-			fields[item] = filter[item];
+		if (insert_filter) {
+			for (const item in filter) {
+				fields[item] = filter[item];
+			}
 		}
 
 		await query.replace(fields);

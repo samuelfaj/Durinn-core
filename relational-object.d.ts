@@ -14,10 +14,18 @@ export default class RelationalObject {
 	readonly query: Query;
 	readonly data: Promise<any>;
 	get(): Promise<any>;
-	insert(fields: {
-		[s: string]: string | number | null;
-	}): Promise<number | false>;
-	replace(fields: { [s: string]: string | number | null }): Promise<boolean>;
+	insert(
+		fields: {
+			[s: string]: string | number | null;
+		},
+		insert_filter?: boolean
+	): Promise<number | false>;
+	replace(
+		fields: {
+			[s: string]: string | number | null;
+		},
+		insert_filter?: boolean
+	): Promise<boolean>;
 	update(
 		field:
 			| string
