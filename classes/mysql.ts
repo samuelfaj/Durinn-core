@@ -1,5 +1,5 @@
 import Durinn from "../durinn";
-import { Pool } from "mysql";
+import { Pool } from "mysql2";
 import * as MySQL from "mysql";
 
 export default class {

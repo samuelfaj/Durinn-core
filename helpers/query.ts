@@ -25,7 +25,7 @@
  */
 
 import Durinn from "../durinn";
-import { FieldInfo, MysqlError, Pool } from "mysql";
+import { Pool, FieldPacket, QueryError } from "mysql2";
 
 interface Variables {
 	sql: string;
@@ -42,7 +42,7 @@ interface Variables {
 interface Response {
 	rows: any[];
 	result: boolean;
-	fields: FieldInfo[] | null;
+	fields: FieldPacket[] | null;
 	insertId: number | null;
 	changedRows: number;
 	affectedRows: number;
@@ -53,7 +53,7 @@ type Comparison = ">" | "<" | ">=" | "<=" | "==" | "!=" | "===" | "!==";
 type Callback = (
 	result: boolean,
 	response: Response,
-	error?: MysqlError | null
+	error?: QueryError | null
 ) => void;
 
 type Join = { table: string; on: { from: string; to: string }[]; type: string };
@@ -72,10 +72,10 @@ export default class Query {
 	pool: Pool;
 	response: Response;
 	variables: Variables;
-	connection = "destroy";
+	connection = "release";
 
 	constructor(table?: string) {
-		this.pool = Durinn.database.connection;
+		this.pool = Durinn.pool;
 
 		this.variables = {
 			sql: "",
@@ -229,12 +229,12 @@ export default class Query {
 	public async exec(
 		sql?: string,
 		callback?: Callback
-	): Promise<[boolean, Response, MysqlError | null]> {
+	): Promise<[boolean, Response, QueryError | null]> {
 		const self = this;
 
 		self.variables.sql = sql || self.variables.sql;
 
-		return new Promise<[boolean, Response, (MysqlError | null)]>(
+		return new Promise<[boolean, Response, (QueryError | null)]>(
 			(resolve, reject) => {
 				self.pool.getConnection(function(err, connection) {
 					if (err) {
@@ -243,9 +243,9 @@ export default class Query {
 					}
 
 					connection.query(self.variables.sql, function(
-						error,
-						results,
-						fields
+						error: any,
+						results: any,
+						fields: any
 					) {
 						if (self.connection === "destroy") {
 							connection.destroy();
@@ -292,7 +292,7 @@ export default class Query {
 	public async select(
 		callback?: Callback,
 		params: { fields?: string[]; ResultCheckBy?: Comparison } = {}
-	): Promise<[boolean, Response, MysqlError | null]> {
+	): Promise<[boolean, Response, QueryError | null]> {
 		const self = this;
 
 		let sql = ` 
@@ -324,7 +324,7 @@ export default class Query {
 	public async distinct(
 		callback?: Callback,
 		params: { fields?: string[]; ResultCheckBy?: Comparison } = {}
-	): Promise<[boolean, Response, MysqlError | null]> {
+	): Promise<[boolean, Response, QueryError | null]> {
 		const self = this;
 
 		let sql = ` 

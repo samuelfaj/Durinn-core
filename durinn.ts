@@ -1,5 +1,4 @@
-import * as MySQL from "mysql";
-
+import * as MySQL from "mysql2";
 const fs = require("fs");
 
 let Config = require("./durinn.config");

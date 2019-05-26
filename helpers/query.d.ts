@@ -1,4 +1,4 @@
-import { FieldInfo, MysqlError, Pool } from "mysql";
+import { Pool, FieldPacket, QueryError } from "mysql2";
 interface Variables {
 	sql: string;
 	table: string;
@@ -13,7 +13,7 @@ interface Variables {
 interface Response {
 	rows: any[];
 	result: boolean;
-	fields: FieldInfo[] | null;
+	fields: FieldPacket[] | null;
 	insertId: number | null;
 	changedRows: number;
 	affectedRows: number;
@@ -22,7 +22,7 @@ declare type Comparison = ">" | "<" | ">=" | "<=" | "==" | "!=" | "===" | "!==";
 declare type Callback = (
 	result: boolean,
 	response: Response,
-	error?: MysqlError | null
+	error?: QueryError | null
 ) => void;
 declare type Join = {
 	table: string;
@@ -78,7 +78,7 @@ export default class Query {
 	): this;
 	limit(records: number, offset?: number): this;
 	readonly rows: any[];
-	readonly fields: FieldInfo[] | null;
+	readonly fields: FieldPacket[] | null;
 	readonly result: boolean;
 	readonly insertId: number | null;
 	readonly changedRows: number;
@@ -86,21 +86,21 @@ export default class Query {
 	exec(
 		sql?: string,
 		callback?: Callback
-	): Promise<[boolean, Response, MysqlError | null]>;
+	): Promise<[boolean, Response, QueryError | null]>;
 	select(
 		callback?: Callback,
 		params?: {
 			fields?: string[];
 			ResultCheckBy?: Comparison;
 		}
-	): Promise<[boolean, Response, MysqlError | null]>;
+	): Promise<[boolean, Response, QueryError | null]>;
 	distinct(
 		callback?: Callback,
 		params?: {
 			fields?: string[];
 			ResultCheckBy?: Comparison;
 		}
-	): Promise<[boolean, Response, MysqlError | null]>;
+	): Promise<[boolean, Response, QueryError | null]>;
 	update(
 		update: {
 			[s: string]: string | number | null;
@@ -111,7 +111,7 @@ export default class Query {
 			escapeValues?: boolean;
 		},
 		safeMode?: boolean
-	): Promise<(boolean | MysqlError | Response | null)[]>;
+	): Promise<(boolean | QueryError | Response | null)[]>;
 	insert(
 		insert: {
 			[s: string]: string | number | null;
@@ -120,7 +120,7 @@ export default class Query {
 		params?: {
 			escapeValues?: boolean;
 		}
-	): Promise<(boolean | MysqlError | Response | null)[]>;
+	): Promise<(boolean | QueryError | Response | null)[]>;
 	replace(
 		insert: {
 			[s: string]: string | number | null;
@@ -129,14 +129,14 @@ export default class Query {
 		params?: {
 			escapeValues?: boolean;
 		}
-	): Promise<(boolean | MysqlError | Response | null)[]>;
+	): Promise<(boolean | QueryError | Response | null)[]>;
 	delete(
 		callback?: Callback,
 		params?: {
 			ResultCheckBy?: Comparison;
 		},
 		safeMode?: boolean
-	): Promise<(boolean | MysqlError | Response | null)[]>;
+	): Promise<(boolean | QueryError | Response | null)[]>;
 	private resetResult;
 	private resetVariables;
 	private readonly joins;

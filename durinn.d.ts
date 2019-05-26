@@ -1,4 +1,4 @@
-import * as MySQL from "mysql";
+import * as MySQL from "mysql2";
 import Mysql from "./classes/mysql";
 import Tests from "./classes/tests";
 import Query from "./helpers/query";

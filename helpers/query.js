@@ -1,39 +1,15 @@
 "use strict";
-var __awaiter =
-	(this && this.__awaiter) ||
-	function(thisArg, _arguments, P, generator) {
-		return new (P || (P = Promise))(function(resolve, reject) {
-			function fulfilled(value) {
-				try {
-					step(generator.next(value));
-				} catch (e) {
-					reject(e);
-				}
-			}
-			function rejected(value) {
-				try {
-					step(generator["throw"](value));
-				} catch (e) {
-					reject(e);
-				}
-			}
-			function step(result) {
-				result.done
-					? resolve(result.value)
-					: new P(function(resolve) {
-						resolve(result.value);
-					  }).then(fulfilled, rejected);
-			}
-			step(
-				(generator = generator.apply(thisArg, _arguments || [])).next()
-			);
-		});
-	};
-var __importDefault =
-	(this && this.__importDefault) ||
-	function(mod) {
-		return mod && mod.__esModule ? mod : { default: mod };
-	};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+	return new (P || (P = Promise))(function (resolve, reject) {
+		function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+		function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+		function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+		step((generator = generator.apply(thisArg, _arguments || [])).next());
+	});
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+	return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Durinn Mysql Query builder and executor
@@ -61,8 +37,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const durinn_1 = __importDefault(require("../durinn"));
 class Query {
 	constructor(table) {
-		this.connection = "destroy";
-		this.pool = durinn_1.default.database.connection;
+		this.connection = "release";
+		this.pool = durinn_1.default.pool;
 		this.variables = {
 			sql: "",
 			joins: [],
@@ -92,34 +68,33 @@ class Query {
 		return this;
 	}
 	describe() {
-		return __awaiter(this, void 0, void 0, function*() {
+		return __awaiter(this, void 0, void 0, function* () {
 			const self = this;
-			const [result, response, error] = yield new Query().exec(
-				"DESCRIBE " + self.variables.table
-			);
+			const [result, response, error] = yield new Query().exec("DESCRIBE " + self.variables.table);
 			return response;
 		});
 	}
 	get table_fields() {
 		const self = this;
-		return new Promise(resolve =>
-			__awaiter(this, void 0, void 0, function*() {
-				const fields = [];
-				const describe = yield self.describe();
-				for (let item of describe.rows) {
-					fields.push(item.Field);
-				}
-				resolve(fields);
-			})
-		);
+		return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+			const fields = [];
+			const describe = yield self.describe();
+			for (let item of describe.rows) {
+				fields.push(item.Field);
+			}
+			resolve(fields);
+		}));
 	}
 	escape(value, escape = true) {
-		if (escape === false) return value;
-		if (value === null) return "null";
+		if (escape === false)
+			return value;
+		if (value === null)
+			return "null";
 		return this.pool.escape(value);
 	}
 	escapeId(value, escape = true) {
-		if (escape === false) return value;
+		if (escape === false)
+			return value;
 		return this.pool.escapeId(value);
 	}
 	where(field, operator, value, escape = true) {
@@ -153,7 +128,8 @@ class Query {
 	limit(records, offset) {
 		if (typeof offset === "number") {
 			this.variables.conditions.limit = [records, offset];
-		} else {
+		}
+		else {
 			this.variables.conditions.limit = [records];
 		}
 		return this;
@@ -177,23 +153,20 @@ class Query {
 		return this.response.affectedRows;
 	}
 	exec(sql, callback) {
-		return __awaiter(this, void 0, void 0, function*() {
+		return __awaiter(this, void 0, void 0, function* () {
 			const self = this;
 			self.variables.sql = sql || self.variables.sql;
 			return new Promise((resolve, reject) => {
-				self.pool.getConnection(function(err, connection) {
+				self.pool.getConnection(function (err, connection) {
 					if (err) {
 						reject(err);
 						return false;
 					}
-					connection.query(self.variables.sql, function(
-						error,
-						results,
-						fields
-					) {
+					connection.query(self.variables.sql, function (error, results, fields) {
 						if (self.connection === "destroy") {
 							connection.destroy();
-						} else {
+						}
+						else {
 							connection.release();
 						}
 						self.resetResult();
@@ -201,7 +174,8 @@ class Query {
 							console.error(self.variables.sql);
 							reject(error);
 							return false;
-						} else {
+						}
+						else {
 							self.response = {
 								rows: results,
 								fields: fields || null,
@@ -212,11 +186,7 @@ class Query {
 							};
 						}
 						if (callback) {
-							callback(
-								self.response.result,
-								self.response,
-								error
-							);
+							callback(self.response.result, self.response, error);
 						}
 						return resolve([
 							self.response.result,
@@ -229,75 +199,56 @@ class Query {
 		});
 	}
 	select(callback, params = {}) {
-		return __awaiter(this, void 0, void 0, function*() {
+		return __awaiter(this, void 0, void 0, function* () {
 			const self = this;
 			let sql = ` 
 		    SELECT ${(params.fields || ["*"]).join(",")} FROM ${self.variables.table} 
-	        ${self.joins}  ${self.wheres}  ${self.groups}  ${self.orders}  ${
-	self.limits
-}
+	        ${self.joins}  ${self.wheres}  ${self.groups}  ${self.orders}  ${self.limits}
 	    `;
 			try {
 				let [result, response, error] = yield self.exec(sql);
-				response.result = self.compare(
-					response.rows.length,
-					params.ResultCheckBy || ">",
-					0
-				);
+				response.result = self.compare(response.rows.length, params.ResultCheckBy || ">", 0);
 				if (typeof callback === "function") {
 					callback(response.result, response, error);
 				}
 				return [response.result, response, error];
-			} catch (e) {
+			}
+			catch (e) {
 				throw e;
 			}
 		});
 	}
 	distinct(callback, params = {}) {
-		return __awaiter(this, void 0, void 0, function*() {
+		return __awaiter(this, void 0, void 0, function* () {
 			const self = this;
 			let sql = ` 
-		    SELECT DISTINCT ${(params.fields || ["*"]).join(",")} FROM ${
-	self.variables.table
-} 
-	        ${self.joins}  ${self.wheres}  ${self.groups}  ${self.orders}  ${
-	self.limits
-}
+		    SELECT DISTINCT ${(params.fields || ["*"]).join(",")} FROM ${self.variables.table} 
+	        ${self.joins}  ${self.wheres}  ${self.groups}  ${self.orders}  ${self.limits}
 	    `;
 			try {
 				let [result, response, error] = yield self.exec(sql);
-				response.result = self.compare(
-					response.rows.length,
-					params.ResultCheckBy || ">",
-					0
-				);
+				response.result = self.compare(response.rows.length, params.ResultCheckBy || ">", 0);
 				if (typeof callback === "function") {
 					callback(response.result, response, error);
 				}
 				return [response.result, response, error];
-			} catch (e) {
+			}
+			catch (e) {
 				throw e;
 			}
 		});
 	}
 	update(update, callback, params = {}, safeMode = true) {
-		return __awaiter(this, void 0, void 0, function*() {
+		return __awaiter(this, void 0, void 0, function* () {
 			const self = this;
 			const fields = yield self.table_fields;
 			if (safeMode && self.wheres.length === 0) {
-				throw new Error(
-					"Durinn - SAFE MODE - There isn't a where condition in UPDATE query"
-				);
+				throw new Error("Durinn - SAFE MODE - There isn't a where condition in UPDATE query");
 			}
 			let set = [];
 			for (let i in update) {
 				if (fields.indexOf(i) > -1) {
-					set.push(
-						`${self.escapeId(i)} = ${self.escape(
-							update[i],
-							params.escapeValues
-						)}`
-					);
+					set.push(`${self.escapeId(i)} = ${self.escape(update[i], params.escapeValues)}`);
 				}
 			}
 			let sql = `
@@ -305,22 +256,19 @@ class Query {
 	    `;
 			try {
 				let [result, response, error] = yield self.exec(sql);
-				response.result = self.compare(
-					response.changedRows,
-					params.ResultCheckBy || ">=",
-					0
-				);
+				response.result = self.compare(response.changedRows, params.ResultCheckBy || ">=", 0);
 				if (typeof callback === "function") {
 					callback(response.result, response, error);
 				}
 				return [response.result, response, error];
-			} catch (e) {
+			}
+			catch (e) {
 				throw e;
 			}
 		});
 	}
 	insert(insert, callback, params = {}) {
-		return __awaiter(this, void 0, void 0, function*() {
+		return __awaiter(this, void 0, void 0, function* () {
 			const self = this;
 			const fields = yield self.table_fields;
 			let keys = [];
@@ -342,13 +290,14 @@ class Query {
 					callback(response.result, response, error);
 				}
 				return [response.result, response, error];
-			} catch (e) {
+			}
+			catch (e) {
 				throw e;
 			}
 		});
 	}
 	replace(insert, callback, params = {}) {
-		return __awaiter(this, void 0, void 0, function*() {
+		return __awaiter(this, void 0, void 0, function* () {
 			const self = this;
 			const fields = yield self.table_fields;
 			let keys = [];
@@ -370,34 +319,30 @@ class Query {
 					callback(response.result, response, error);
 				}
 				return [response.result, response, error];
-			} catch (e) {
+			}
+			catch (e) {
 				throw e;
 			}
 		});
 	}
 	delete(callback, params = {}, safeMode = true) {
-		return __awaiter(this, void 0, void 0, function*() {
+		return __awaiter(this, void 0, void 0, function* () {
 			const self = this;
 			if (safeMode && self.wheres.length === 0) {
-				throw new Error(
-					"Durinn - SAFE MODE - There isn't a where condition in DELETE query"
-				);
+				throw new Error("Durinn - SAFE MODE - There isn't a where condition in DELETE query");
 			}
 			let sql = `
 	        DELETE FROM ${self.variables.table} ${self.wheres} 
 	    `;
 			try {
 				let [result, response, error] = yield self.exec(sql);
-				response.result = self.compare(
-					response.affectedRows,
-					params.ResultCheckBy || ">",
-					0
-				);
+				response.result = self.compare(response.affectedRows, params.ResultCheckBy || ">", 0);
 				if (typeof callback === "function") {
 					callback(response.result, response, error);
 				}
 				return [response.result, response, error];
-			} catch (e) {
+			}
+			catch (e) {
 				throw e;
 			}
 		});
@@ -429,7 +374,8 @@ class Query {
 		const self = this;
 		let result = [];
 		let joins = this.variables.joins;
-		if (joins.length === 0) return "";
+		if (joins.length === 0)
+			return "";
 		for (let key in joins) {
 			let join = joins[key];
 			let relations = [];
@@ -437,9 +383,7 @@ class Query {
 				let relation = join.on[i];
 				relations.push(relation.from + " = " + relation.to);
 			}
-			result.push(
-				`${join.type} JOIN ${join.table} ON ${relations.join(" AND ")}`
-			);
+			result.push(`${join.type} JOIN ${join.table} ON ${relations.join(" AND ")}`);
 		}
 		return result.join("\n");
 	}
@@ -447,7 +391,8 @@ class Query {
 		const self = this;
 		let result = [];
 		let wheres = self.variables.conditions.wheres;
-		if (wheres.length === 0) return "";
+		if (wheres.length === 0)
+			return "";
 		for (let key in wheres) {
 			let where = wheres[key];
 			let value = where.escape ? self.escape(where.value) : where.value;
@@ -459,7 +404,8 @@ class Query {
 		const self = this;
 		let result = [];
 		let groups = self.variables.conditions.groups;
-		if (groups.length === 0) return "";
+		if (groups.length === 0)
+			return "";
 		for (let key in groups) {
 			result.push(groups[key]);
 		}
@@ -469,7 +415,8 @@ class Query {
 		const self = this;
 		let result = [];
 		let orders = self.variables.conditions.orders;
-		if (orders.length === 0) return "";
+		if (orders.length === 0)
+			return "";
 		for (let key in orders) {
 			let order = orders[key];
 			result.push(`${order.field} ${order.order}`);
@@ -477,7 +424,8 @@ class Query {
 		return ` ORDER BY ${result.join(",")} `;
 	}
 	get limits() {
-		if (this.variables.conditions.limit.length == 0) return "";
+		if (this.variables.conditions.limit.length == 0)
+			return "";
 		return ` LIMIT ${this.variables.conditions.limit.join(",")} `;
 	}
 	compare(variable, operator, value) {

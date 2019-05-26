@@ -16,7 +16,7 @@ var __importDefault =
 		return mod && mod.__esModule ? mod : { default: mod };
 	};
 Object.defineProperty(exports, "__esModule", { value: true });
-const MySQL = __importStar(require("mysql"));
+const MySQL = __importStar(require("mysql2"));
 const fs = require("fs");
 let Config = require("./durinn.config");
 if (fs.existsSync(process.cwd() + "/durinn.config.json")) {
