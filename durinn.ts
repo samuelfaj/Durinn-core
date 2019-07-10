@@ -1,4 +1,3 @@
-import * as MySQL from "mysql2";
 const fs = require("fs");
 
 let Config = require("./durinn.config");
@@ -11,15 +10,16 @@ if (fs.existsSync(process.cwd() + "/durinn.config.json")) {
 	);
 }
 
-import Mysql from "./classes/mysql";
 import Tests from "./classes/tests";
 import Query from "./helpers/query";
 
-const Pool = MySQL.createPool(Config.database);
+const mysql = require("serverless-mysql")({
+	config: Config.database
+});
 
 export default class {
 	public static get pool() {
-		return Pool;
+		return mysql;
 	}
 
 	public static get config() {
@@ -27,7 +27,7 @@ export default class {
 	}
 
 	public static get database() {
-		return Mysql;
+		return mysql.getClient();
 	}
 
 	public static get tests() {

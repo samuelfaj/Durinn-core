@@ -27,6 +27,8 @@
 import Durinn from "../durinn";
 import { Pool, FieldPacket, QueryError } from "mysql2";
 
+const mysql = require("mysql");
+
 interface Variables {
 	sql: string;
 	table: string;
@@ -134,13 +136,13 @@ export default class Query {
 		if (escape === false) return value;
 		if (value === null) return "null";
 
-		return this.pool.escape(value);
+		return mysql.escape(value);
 	}
 
 	public escapeId(value: any, escape: boolean = true) {
 		if (escape === false) return value;
 
-		return this.pool.escapeId(value);
+		return mysql.escapeId(value);
 	}
 
 	public where(
@@ -234,59 +236,23 @@ export default class Query {
 
 		self.variables.sql = sql || self.variables.sql;
 
-		return new Promise<[boolean, Response, (QueryError | null)]>(
-			(resolve, reject) => {
-				self.pool.getConnection(function(err, connection) {
-					if (err) {
-						reject(err);
-						return false;
-					}
+		let results: any = await self.pool.query(self.variables.sql);
+		self.resetResult();
 
-					connection.query(self.variables.sql, function(
-						error: any,
-						results: any,
-						fields: any
-					) {
-						if (self.connection === "destroy") {
-							connection.destroy();
-						} else {
-							connection.release();
-						}
+		self.response = {
+			rows: results,
+			fields: null,
+			result: true,
+			insertId: results.insertId || null,
+			changedRows: results.changedRows || 0,
+			affectedRows: results.affectedRows || 0
+		};
 
-						self.resetResult();
+		if (callback) {
+			callback(self.response.result, self.response, null);
+		}
 
-						if (error) {
-							console.error(self.variables.sql);
-							reject(error);
-							return false;
-						} else {
-							self.response = {
-								rows: results,
-								fields: fields || null,
-								result: true,
-								insertId: results.insertId || null,
-								changedRows: results.changedRows || 0,
-								affectedRows: results.affectedRows || 0
-							};
-						}
-
-						if (callback) {
-							callback(
-								self.response.result,
-								self.response,
-								error
-							);
-						}
-
-						return resolve([
-							self.response.result,
-							self.response,
-							error
-						]);
-					});
-				});
-			}
-		);
+		return [self.response.result, self.response, null];
 	}
 
 	public async select(

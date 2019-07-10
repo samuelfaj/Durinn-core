@@ -3,7 +3,7 @@
 		"node": ">=8.10"
 	},
 	"name": "durinn",
-	"version": "0.7.18",
+	"version": "0.7.27",
 	"description": "A Node.js object-oriented programming framework",
 	"main": "durinn.js",
 	"types": "durinn.d.ts",
@@ -39,7 +39,8 @@
 		"mysql": "^2.16.0",
 		"mysql2": "^1.6.5",
 		"npx": "^10.2.0",
-		"prettier": "^1.14.2"
+		"prettier": "^1.14.2",
+		"serverless-mysql": "^1.4.0"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.1.5",

@@ -1,11 +1,9 @@
-import * as MySQL from "mysql2";
-import Mysql from "./classes/mysql";
 import Tests from "./classes/tests";
 import Query from "./helpers/query";
 export default class {
-	static readonly pool: MySQL.Pool;
+	static readonly pool: any;
 	static readonly config: any;
-	static readonly database: typeof Mysql;
+	static readonly database: any;
 	static readonly tests: typeof Tests;
 	static readonly query: typeof Query;
 }
